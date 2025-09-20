@@ -63,7 +63,7 @@
 <body class="bg-gray-100">
 
     <div id="curriculumContent" class="max-w-4xl mx-auto my-10 bg-white shadow-lg print:shadow-none">
-        <div class="flex flex-col md:flex-row">
+        <div id="flexContainer" class="flex flex-col md:flex-row">
             
             <aside class="w-full md:w-1/2 bg-gray-50 text-gray-800 p-8 print:bg-gray-50">
                 <div class="flex flex-col items-center">
@@ -166,9 +166,8 @@
             <i class="fas fa-file-pdf mr-2"></i><span class="hidden md:inline">Baixar PDF</span>
         </button>
     </div>
-
+    
     <script>
-        // ... (O mesmo código JavaScript que já corrigimos para compressão) ...
         const { jsPDF } = window.jspdf;
         const profilePhoto = document.getElementById('profilePhoto');
         const photoUpload = document.getElementById('photoUpload');
@@ -189,10 +188,14 @@
 
         const handleDownload = (button, format) => {
             const element = document.getElementById('curriculumContent');
+            const flexContainer = document.getElementById('flexContainer');
             const originalButtonText = button.innerHTML;
 
             button.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Gerando...`;
             button.disabled = true;
+            
+            element.style.width = '896px';
+            flexContainer.style.flexDirection = 'row';
             
             const editableFields = document.querySelectorAll('[contenteditable="true"]');
             editableFields.forEach(field => field.style.outline = 'none');
@@ -222,11 +225,18 @@
                         pdf.save(`${fileName}.pdf`);
                     }
 
+                    element.style.width = '';
+                    flexContainer.style.flexDirection = '';
+
                     button.innerHTML = originalButtonText;
                     button.disabled = false;
                     editableFields.forEach(field => field.style.outline = '2px dashed #f9d6d3');
                 }).catch(err => {
                     console.error(`Erro ao gerar o ${format.toUpperCase()}:`, err);
+                    
+                    element.style.width = '';
+                    flexContainer.style.flexDirection = '';
+
                     button.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Erro!';
                     button.disabled = false;
                     editableFields.forEach(field => field.style.outline = '2px dashed #f9d6d3');
