@@ -1,272 +1,805 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
+<html lang="pt-br" style="--primary-color: #0f172a; --accent-color: #2563eb;"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Template de Currículo Profissional Editável</title>
+    <title>Currículo Profissional - Wellington Silva</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Fontes e Ícones -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;family=Open+Sans:wght@400;600&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Bibliotecas de PDF e IA -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-print-color-adjust: exact;
-        }
+        /* --- CONFIGURAÇÕES GERAIS --- */
         :root {
-            --primary-color: #2c5282;
-            --secondary-color: #2d3748;
+            --primary-color: #0f172a; /* Azul Escuro Padrão */
+            --secondary-color: #334155;
+            --accent-color: #2563eb; /* Azul Destaque */
+            --text-color: #333333;
+            --paper-width: 210mm;
+            --paper-height: 297mm;
+            --ai-color: #8b5cf6; /* Roxo IA */
         }
-        .section-title {
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 8px;
-            margin-bottom: 16px;
-            font-weight: 600;
-            color: var(--secondary-color);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+
+        body {
+            background-color: #e2e8f0;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding-top: 20px;
+            padding-bottom: 160px;
         }
-        #profilePhoto.interactive:hover {
-            cursor: pointer;
-            opacity: 0.8;
+
+        /* --- FOLHA A4 PIXEL PERFECT --- */
+        #resume-paper {
+            width: var(--paper-width);
+            min-height: var(--paper-height); 
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            position: relative;
+            padding: 15mm 15mm;
+            box-sizing: border-box;
+            overflow: hidden; 
+            /* Melhoria na renderização de texto */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: geometricPrecision;
         }
-        [contenteditable="true"] {
-            outline: 2px dashed #f9d6d3;
-            padding: 2px 4px;
-            border-radius: 4px;
+
+        /* Linha Guia de Fim da Página (Apenas Visual) */
+        #page-break-guide {
+            position: absolute;
+            top: 296mm; /* Um pouco antes do fim */
+            left: 0;
+            width: 100%;
+            height: 1px;
+            border-top: 2px dashed #ef4444;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 50;
+        }
+        #page-break-guide::after {
+            content: "FIM DA PÁGINA A4";
+            position: absolute;
+            right: 10px;
+            top: -20px;
+            color: #ef4444;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        /* Marca d'água de fundo */
+        #watermark-layer {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 50%;
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* --- TIPOGRAFIA E EDIÇÃO --- */
+        .editable {
+            outline: none;
+            border: 1px dashed transparent;
+            transition: all 0.2s;
             cursor: text;
-            transition: background-color 0.3s;
         }
-        [contenteditable="true"]:hover, [contenteditable="true"]:focus {
-            background-color: #fff8f7;
-            outline-color: #c0392b;
+        
+        .editable:hover {
+            background-color: rgba(37, 99, 235, 0.05);
+            border-color: rgba(37, 99, 235, 0.3);
+            border-radius: 4px;
         }
-        .instruction-text {
-            color: #999;
+
+        .editable:focus {
+            background-color: white;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .tutorial-text {
+            color: #64748b;
             font-style: italic;
-            font-size: 0.9em;
         }
+
+        /* Listas */
+        ul.custom-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        ul.custom-list li {
+            position: relative;
+            padding-left: 1.2rem;
+            margin-bottom: 0.4rem;
+        }
+        ul.custom-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        /* --- COMPONENTES VISUAIS --- */
+        .section-header {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid var(--primary-color);
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.25rem;
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--primary-color);
+            letter-spacing: 0.05em;
+        }
+
+        .section-icon {
+            margin-right: 0.5rem;
+            color: var(--accent-color);
+            font-size: 1.1rem;
+        }
+
+        /* Foto */
+        .photo-container {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 4px solid var(--primary-color);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            background-color: #f1f5f9;
+        }
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .photo-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .photo-container:hover .photo-overlay { opacity: 1; }
+
+        /* QR Code */
+        .qr-container {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+        .qr-container:hover { border-color: var(--accent-color); }
+
+        /* --- PAINEL DE CONTROLE FLUTUANTE --- */
+        #control-dock {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px 20px;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border: 1px solid #e2e8f0;
+            width: 95%;
+            max-width: 900px;
+        }
+
+        .dock-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .dock-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #64748b;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .color-scroll-container {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            max-width: 100%;
+            scrollbar-width: thin;
+        }
+        .color-scroll-container::-webkit-scrollbar { height: 6px; }
+        .color-scroll-container::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+
+        .color-group-label {
+            font-size: 0.65rem;
+            font-weight: 900;
+            color: #94a3b8;
+            margin-right: 4px;
+            writing-mode: vertical-lr;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            white-space: nowrap;
+        }
+
+        .color-dot {
+            width: 28px; height: 28px; border-radius: 50%;
+            cursor: pointer; border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .color-dot:hover { transform: scale(1.15); z-index: 10; }
+        .color-dot::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            margin-bottom: 4px;
+        }
+        .color-dot:hover::after { opacity: 1; }
+
+        .btn-action {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-action:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-action.secondary { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+        .btn-action.secondary:hover { background: #e2e8f0; }
+        .btn-action.accent { background: #dc2626; } 
+        
+        .btn-action.ai { 
+            background: linear-gradient(135deg, var(--ai-color), #4b7bec); 
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn-action.ai:hover { box-shadow: 0 0 10px var(--ai-color); }
+
+        /* --- PAINEL IA (Overlay) --- */
+        #ai-panel {
+            position: fixed;
+            bottom: 160px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        #ai-panel.active { display: flex; animation: slideUp 0.3s ease-out; }
+
+        @keyframes slideUp {
+            from { transform: translate(-50%, 20px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        .ai-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+        .ai-title { font-weight: bold; color: var(--ai-color); font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+        
+        .ai-input-group { display: flex; gap: 10px; }
+        .ai-input { flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; }
+        .ai-result-area { 
+            background: #f8fafc; 
+            padding: 15px; 
+            border-radius: 8px; 
+            border: 1px dashed #cbd5e1; 
+            max-height: 200px; 
+            overflow-y: auto; 
+            font-size: 0.9rem; 
+            line-height: 1.5;
+            color: #334155;
+        }
+        
+        .ai-result-area strong { color: var(--ai-color); }
+        .ai-result-area ul { padding-left: 20px; list-style-type: disc; }
+
         @media print {
-            body { margin: 0; padding: 0; font-size: 10pt; }
-            .no-print { display: none; }
-            #curriculumContent { margin: 0 !important; box-shadow: none !important; border: none !important; }
-            aside, main { padding: 1.25rem; }
-            [contenteditable="true"] { outline: none; padding: 2px 4px; }
+            body { background: white; padding: 0; display: block; }
+            #control-dock, #ai-panel, #page-break-guide { display: none !important; }
+            #resume-paper { box-shadow: none; margin: 0; width: 100%; height: auto; }
+            .editable { border: none !important; }
         }
     </style>
-</head>
-<body class="bg-gray-100">
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-6{margin-bottom:1.5rem}.ml-2{margin-left:0.5rem}.ml-auto{margin-left:auto}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-4{margin-top:1rem}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-full{height:100%}.w-full{width:100%}.flex-shrink-0{flex-shrink:0}.flex-grow{flex-grow:1}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-2{gap:0.5rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.overflow-x-auto{overflow-x:auto}.border-r{border-right-width:1px}.border-gray-200{--tw-border-opacity:1;border-color:rgb(229 231 235 / var(--tw-border-opacity, 1))}.bg-gray-800{--tw-bg-opacity:1;background-color:rgb(31 41 55 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.object-cover{object-fit:cover}.p-1{padding:0.25rem}.pb-2{padding-bottom:0.5rem}.pr-2{padding-right:0.5rem}.text-center{text-align:center}.text-justify{text-align:justify}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[0\.6rem\]{font-size:0.6rem}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.tracking-tight{letter-spacing:-0.025em}.tracking-wide{letter-spacing:0.025em}.text-\[var\(--accent-color\)\]{color:var(--accent-color)}.text-\[var\(--primary-color\)\]{color:var(--primary-color)}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}@media (min-width: 768px){.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:flex-row{flex-direction:row}.md\:justify-start{justify-content:flex-start}.md\:text-left{text-align:left}}</style></head>
+<body>
 
-    <div id="curriculumContent" class="max-w-4xl mx-auto my-10 bg-white shadow-lg print:shadow-none">
-        <div id="flexContainer" class="flex flex-col md:flex-row">
+    <!-- PAPEL A4 DO CURRÍCULO -->
+    <div id="resume-paper">
+        <div id="watermark-layer"></div>
+        <div id="page-break-guide" title="O conteúdo abaixo desta linha pode ser cortado"></div>
+
+        <!-- Cabeçalho -->
+        <header class="flex flex-col md:flex-row items-center gap-6 mb-6">
             
-            <aside class="w-full md:w-1/2 bg-gray-50 text-gray-800 p-8 print:bg-gray-50">
-                <div class="flex flex-col items-center">
-                    <img src="https://via.placeholder.com/150" alt="Sua Foto Profissional" id="profilePhoto" class="rounded-full w-36 h-36 mb-4 border-4 border-[var(--primary-color)] object-cover interactive">
-                    <input type="file" id="photoUpload" class="hidden" accept="image/*">
-                    <h1 class="text-2xl font-bold text-center text-[var(--secondary-color)]" contenteditable="true">[Seu Nome Completo]</h1>
-                    <h2 class="text-md text-center text-[var(--primary-color)] font-semibold" contenteditable="true">[Seu Cargo ou Título Profissional]</h2>
+            <!-- Foto -->
+            <div id="photo-area" class="flex-shrink-0" style="display: none;">
+                <div class="photo-container" onclick="document.getElementById('upload-photo').click()">
+                    <img id="img-preview" src="https://via.placeholder.com/150?text=Sua+Foto" alt="Foto de Perfil">
+                    <div class="photo-overlay"><i class="fas fa-camera text-white text-2xl"></i></div>
                 </div>
+                <input type="file" id="upload-photo" class="hidden" accept="image/*">
+            </div>
 
-                <div class="mt-4">
-                    <h2 class="text-lg font-semibold border-b-2 border-[var(--primary-color)] pb-2 mb-3 text-[var(--secondary-color)]">CONTATO</h2>
-                    <ul class="space-y-2 text-sm">
-                        <li class="flex items-start"><i class="fas fa-map-marker-alt w-5 mr-3 text-[var(--primary-color)] pt-1"></i><span contenteditable="true">[Sua Cidade, Estado]</span></li>
-                        <li class="flex items-start"><i class="fas fa-rocket w-5 mr-3 text-[var(--primary-color)] pt-1"></i><span contenteditable="true">[Sua disponibilidade. Ex: Disponibilidade para viagens]</span></li>
-                        <li class="flex items-center"><i class="fas fa-phone w-5 mr-3 text-[var(--primary-color)]"></i><span contenteditable="true">[(XX) XXXXX-XXXX]</span></li>
-                        <li class="flex items-center"><i class="fas fa-envelope w-5 mr-3 text-[var(--primary-color)]"></i><a href="mailto:seu.email@exemplo.com" class="hover:text-blue-800 break-all" contenteditable="true">[seu.email@exemplo.com]</a></li>
-                    </ul>
-                </div>
-
-                <div class="mt-4">
-                    <h2 class="text-lg font-semibold border-b-2 border-[var(--primary-color)] pb-2 mb-3 text-[var(--secondary-color)]">COMPETÊNCIAS</h2>
-                    <ul class="space-y-3 text-sm">
-                        <li contenteditable="true"><span class="font-semibold">[Competência Chave 1]:</span> [Descreva-a. Ex: Análise de Dados para tomada de decisão estratégica.]</li>
-                        <li contenteditable="true"><span class="font-semibold">[Competência Chave 2]:</span> [Descreva-a. Ex: Liderança de equipes e desenvolvimento de talentos.]</li>
-                        <li contenteditable="true"><span class="font-semibold">[Competência Chave 3]:</span> [Descreva-a. Ex: Gestão de Projetos com foco em metodologias ágeis.]</li>
-                        <li contenteditable="true"><span class="font-semibold">[Competência Chave 4]:</span> [Descreva-a. Ex: Fluência em softwares específicos como SAP, Power BI, etc.]</li>
-                    </ul>
-                </div>
-
-                <div class="mt-4">
-                    <h2 class="text-lg font-semibold border-b-2 border-[var(--primary-color)] pb-2 mb-3 text-[var(--secondary-color)]">FORMAÇÃO</h2>
-                    <div class="space-y-2">
-                        <div contenteditable="true">
-                            <h3 class="font-bold text-sm">[Nome da sua Graduação ou Formação Principal]</h3>
-                            <p class="text-xs text-gray-700">[Nome da Instituição] | [Status: Cursando ou Ano de Conclusão]</p>
-                        </div>
-                        <div contenteditable="true">
-                            <p class="text-sm"><span class="font-bold">[Nome do Curso Técnico ou Secundário]</span> <span class="text-gray-700 text-xs">| [Instituição] - [Ano de Conclusão]</span></p>
-                        </div>
+            <!-- Dados Pessoais -->
+            <div class="flex-grow text-center md:text-left w-full">
+                <div id="editable-name" class="editable text-3xl font-black text-[var(--primary-color)] uppercase tracking-tight mb-1" contenteditable="true">[SEU NOME COMPLETO]</div>
+                <div id="editable-role" class="editable text-lg font-semibold text-[var(--accent-color)] mb-3" contenteditable="true">[SEU CARGO OU OBJETIVO]</div>
+                
+                <div id="editable-contact" class="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-gray-600 mt-2">
+                    <div class="flex items-center gap-1 editable" contenteditable="true">
+                        <i class="fas fa-map-marker-alt text-[var(--accent-color)]"></i> [Cidade, Estado]
+                    </div>
+                    <div class="flex items-center gap-1 editable" contenteditable="true">
+                        <i class="fas fa-phone text-[var(--accent-color)]"></i> [(XX) 99999-9999]
+                    </div>
+                    <div class="flex items-center gap-1 editable" contenteditable="true">
+                        <i class="fas fa-envelope text-[var(--accent-color)]"></i> [seu.email@exemplo.com]
+                    </div>
+                    <div class="flex items-center gap-1 editable" contenteditable="true">
+                        <i class="fab fa-linkedin text-[var(--accent-color)]"></i> [linkedin.com/in/seu-perfil]
                     </div>
                 </div>
+            </div>
 
-                 <div class="mt-4">
-                    <h2 class="text-lg font-semibold border-b-2 border-[var(--primary-color)] pb-2 mb-3 text-[var(--secondary-color)]">CERTIFICAÇÕES & CURSOS</h2>
-                    <div class="space-y-2">
-                         <p class="text-sm" contenteditable="true"><span class="font-bold">[Nome da Certificação]</span> <span class="text-gray-700 text-xs">| [Instituição Emissora]</span></p>
-                         <p class="text-sm" contenteditable="true"><span class="font-bold">[Nome do Curso Relevante]</span> <span class="text-gray-700 text-xs">| [Instituição]</span></p>
+            <!-- QR Code -->
+            <div id="qr-area" class="flex-shrink-0 flex flex-col items-center" style="display: none;">
+                <div class="qr-container" onclick="document.getElementById('upload-qr').click()">
+                    <img id="qr-preview" src="https://via.placeholder.com/80?text=QR+Code" class="w-full h-full object-cover p-1">
+                </div>
+                <input type="file" id="upload-qr" class="hidden" accept="image/*">
+                <span class="text-[0.6rem] text-gray-400 mt-1 uppercase tracking-wide">Seu Portfólio</span>
+            </div>
+        </header>
+
+        <!-- Corpo Principal -->
+        <main>
+            <!-- Objetivo -->
+            <section>
+                <div class="section-header">
+                    <i class="fas fa-bullseye section-icon"></i>
+                    <h2 class="section-title">Resumo Profissional</h2>
+                </div>
+                <div id="editable-summary" class="editable text-gray-700 text-sm leading-relaxed text-justify tutorial-text" contenteditable="true">
+                    [Este é o seu "Elevator Pitch". Escreva um parágrafo de 3 a 5 linhas resumindo sua experiência. Responda a três perguntas: 1. Quem é você? (Ex: Técnico em Segurança com 5 anos de experiência). 2. O que você faz de melhor? (Ex: Especialista em NRs e redução de custos). 3. Qual seu diferencial? (Ex: Foco em análise de dados e liderança de equipes). Evite clichês como "proativo" e foque em resultados.]
+                </div>
+            </section>
+
+            <!-- Experiência -->
+            <section>
+                <div class="section-header">
+                    <i class="fas fa-briefcase section-icon"></i>
+                    <h2 class="section-title">Experiência Profissional</h2>
+                </div>
+                
+                <div id="editable-experience" class="space-y-5">
+                    <!-- Item 1: Template de Experiência -->
+                    <div class="experience-block">
+                        <div class="flex justify-between items-baseline mb-1">
+                            <h3 class="editable font-bold text-gray-800 text-base" contenteditable="true">[NOME DA EMPRESA MAIS RECENTE]</h3>
+                            <span class="editable text-sm font-semibold text-gray-500" contenteditable="true">[Mês/Ano] – [Atual/Fim]</span>
+                        </div>
+                        <div class="editable text-sm font-bold text-[var(--accent-color)] mb-2" contenteditable="true">[Seu Cargo nesta empresa]</div>
+                        
+                        <ul class="custom-list text-sm text-gray-700 leading-snug tutorial-text">
+                            <li class="editable" contenteditable="true"><strong>Conquista Principal:</strong> [Comece com um verbo de ação (Liderei, Implementei, Reduzi). Descreva o que você fez e qual foi o resultado numérico. Ex: Reduzi em 30% os acidentes.]</li>
+                            <li class="editable" contenteditable="true"><strong>Responsabilidade Chave:</strong> [Descreva uma função vital que você exercia. Ex: Gestão de equipe de 10 pessoas ou Interface com órgãos reguladores.]</li>
+                            <li class="editable" contenteditable="true"><strong>Ferramenta/Técnica:</strong> [Mencione uma tecnologia ou metodologia específica que usou. Ex: Implementação de sistema Kanban para gestão de resíduos.]</li>
+                        </ul>
+                    </div>
+
+                    <!-- Item 2: Template de Experiência -->
+                    <div class="experience-block">
+                        <div class="flex justify-between items-baseline mb-1">
+                            <h3 class="editable font-bold text-gray-800 text-base" contenteditable="true">[NOME DA EMPRESA ANTERIOR]</h3>
+                            <span class="editable text-sm font-semibold text-gray-500" contenteditable="true">[Mês/Ano] – [Mês/Ano]</span>
+                        </div>
+                        <div class="editable text-sm font-bold text-[var(--accent-color)] mb-2" contenteditable="true">[Seu Cargo Anterior]</div>
+                        
+                        <ul class="custom-list text-sm text-gray-700 leading-snug tutorial-text">
+                            <li class="editable" contenteditable="true"><strong>Projeto Relevante:</strong> [Descreva um projeto específico que teve início, meio e fim. Destaque sua contribuição pessoal.]</li>
+                            <li class="editable" contenteditable="true"><strong>Rotina Operacional:</strong> [Liste suas responsabilidades diárias mais importantes, usando palavras-chave da sua área (ex: auditoria, fiscalização, relatórios).]</li>
+                        </ul>
+                    </div>
+
+                    <!-- Item 3: Template de Experiência (Atualizado com 3 linhas) -->
+                    <div class="experience-block">
+                        <div class="flex justify-between items-baseline mb-1">
+                            <h3 class="editable font-bold text-gray-800 text-base" contenteditable="true">[NOME DA EMPRESA ANTERIOR]</h3>
+                            <span class="editable text-sm font-semibold text-gray-500" contenteditable="true">[Mês/Ano] – [Mês/Ano]</span>
+                        </div>
+                        <div class="editable text-sm font-bold text-[var(--accent-color)] mb-2" contenteditable="true">[Seu Cargo Inicial/Anterior]</div>
+                        
+                        <ul class="custom-list text-sm text-gray-700 leading-snug tutorial-text">
+                            <li class="editable" contenteditable="true"><strong>Conquista/Projeto:</strong> [Descreva um resultado relevante ou projeto entregue.]</li>
+                            <li class="editable" contenteditable="true"><strong>Atividade Chave:</strong> [Descreva sua principal responsabilidade diária.]</li>
+                            <li class="editable" contenteditable="true"><strong>Ferramenta/Habilidade:</strong> [Cite uma competência técnica utilizada.]</li>
+                        </ul>
                     </div>
                 </div>
-            </aside>
+            </section>
 
-            <main class="w-full md:w-1/2 p-8">
+            <!-- Grid 2 Colunas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+                
+                <!-- Formação -->
                 <section>
-                    <h2 class="text-2xl font-bold text-[var(--primary-color)] mb-2">OBJETIVO</h2>
-                    <p class="text-gray-800 leading-relaxed text-sm" contenteditable="true">
-                       [Escreva aqui seu objetivo profissional em 2-3 linhas. Destaque sua principal proposta de valor. Ex: Profissional de Marketing com 5 anos de experiência em estratégias digitais, buscando uma posição para liderar campanhas de crescimento e otimizar a performance de canais de aquisição.]
-                    </p>
-                </section>
-
-                <section class="mt-6">
-                    <h2 class="section-title text-xl">EXPERIÊNCIA PROFISSIONAL</h2>
-                    <p class="instruction-text">(Liste da mais recente para a mais antiga)</p>
-                    <div class="space-y-4">
-                        <div class="relative pl-4" contenteditable="true">
-                              <div class="absolute top-1 left-0 h-full w-0.5 bg-gray-200"></div>
-                              <div class="absolute top-1 left-[-4px] w-3 h-3 bg-[var(--primary-color)] rounded-full"></div>
-                            <p class="text-xs text-gray-600">[Mês/Ano de Início] - Atualmente</p>
-                            <h3 class="font-bold text-[var(--secondary-color)]">[Seu Cargo Atual]</h3>
-                            <p class="text-sm font-semibold text-gray-700">[Nome da Empresa Atual]</p>
-                            <ul class="list-disc list-inside text-sm mt-1 space-y-1 text-gray-800">
-                                <li>[Descreva sua principal conquista. Use verbos de ação e números. Ex: "Liderei a reestruturação do processo de vendas, resultando em um aumento de 15% no faturamento."].</li>
-                                <li>[Outra conquista ou responsabilidade relevante.].</li>
-                            </ul>
+                    <div class="section-header">
+                        <i class="fas fa-graduation-cap section-icon"></i>
+                        <h2 class="section-title">Formação Acadêmica</h2>
+                    </div>
+                    <div id="editable-education" class="space-y-3 text-sm">
+                        <div class="editable" contenteditable="true">
+                            <p class="font-bold text-gray-800">[Nome do Curso / Graduação]</p>
+                            <p class="text-gray-600">[Nome da Instituição] | [Status: Cursando ou Concluído em Ano]</p>
                         </div>
-                        <div class="relative pl-4" contenteditable="true">
-                              <div class="absolute top-1 left-0 h-full w-0.5 bg-gray-200"></div>
-                              <div class="absolute top-1 left-[-4px] w-3 h-3 bg-[var(--primary-color)] rounded-full"></div>
-                            <p class="text-xs text-gray-600">[Mês/Ano de Início] - [Mês/Ano de Fim]</p>
-                            <h3 class="font-bold text-[var(--secondary-color)]">[Seu Cargo Anterior]</h3>
-                            <p class="text-sm font-semibold text-gray-700">[Nome da Empresa Anterior]</p>
-                            <ul class="list-disc list-inside text-sm mt-1 space-y-1 text-gray-800">
-                                <li>[Conquista ou responsabilidade 1. Ex: "Desenvolvi e executei 10+ campanhas de marketing digital, alcançando mais de 2 milhões de usuários."].</li>
-                                <li>[Conquista ou responsabilidade 2.].</li>
-                            </ul>
+                        <div class="editable" contenteditable="true">
+                            <p class="font-bold text-gray-800">[Curso Técnico ou Especialização]</p>
+                            <p class="text-gray-600">[Nome da Instituição] | [Concluído]</p>
+                        </div>
+                         <div class="editable" contenteditable="true">
+                            <p class="font-bold text-gray-800">[Outra Formação Relevante]</p>
+                            <p class="text-gray-600">[Nome da Instituição] | [Concluído]</p>
                         </div>
                     </div>
                 </section>
-            </main>
+
+                <!-- Competências -->
+                <section>
+                    <div class="section-header">
+                        <i class="fas fa-tools section-icon"></i>
+                        <h2 class="section-title">Competências</h2>
+                    </div>
+                    <ul id="editable-skills" class="custom-list text-sm text-gray-700 leading-snug tutorial-text">
+                        <li class="editable" contenteditable="true"><strong>Hard Skills:</strong> [Liste softwares, ferramentas técnicas, legislações (NRs, ISO) que você domina.]</li>
+                        <li class="editable" contenteditable="true"><strong>Dados &amp; Tech:</strong> [Cite ferramentas de análise como Excel Avançado, Power BI, Dashboards.]</li>
+                        <li class="editable" contenteditable="true"><strong>Soft Skills:</strong> [Liste habilidades comportamentais reais: Liderança, Comunicação, Resolução de Conflitos.]</li>
+                        <li class="editable" contenteditable="true"><strong>Idiomas:</strong> [Apenas se for Intermediário ou superior. Ex: Inglês Técnico.]</li>
+                    </ul>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- PAINEL IA -->
+    <div id="ai-panel">
+        <div class="ai-header">
+            <span class="ai-title"><i class="fas fa-robot"></i> Mentor de Carreira (IA)</span>
+            <button class="btn-action secondary btn-sm" onclick="toggleAI()">Fechar</button>
+        </div>
+        <div id="api-key-section">
+            <label style="font-size: 0.8rem; font-weight: bold; color: #64748b;">Chave Google Gemini API:</label>
+            <div class="ai-input-group">
+                <input type="password" id="gemini-key" class="ai-input" placeholder="Cole sua chave aqui (começa com AIzaSy...)">
+                <button class="btn-action secondary" onclick="saveKey()">Salvar</button>
+            </div>
+            <p style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px;">A chave fica salva no navegador. <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--accent-color);">Gerar Chave</a></p>
+        </div>
+        <div id="ai-actions" style="display:none; flex-direction: column; gap: 10px;">
+            <div class="flex gap-2 overflow-x-auto pb-2">
+                <button class="btn-action ai" onclick="runAI('rewrite')">✨ Reescrever</button>
+                <button class="btn-action secondary" onclick="runAI('ats_check')">🛡️ Auditoria</button>
+                <button class="btn-action secondary" onclick="runAI('summary')">📝 Resumo</button>
+            </div>
+            <div id="ai-output" class="ai-result-area" style="display:none;"><span style="color: #94a3b8;">Aguardando...</span></div>
+            <div style="display:flex; justify-content: flex-end;">
+                <button id="copy-ai-btn" class="btn-action secondary btn-sm" style="display:none" onclick="copyAIResult()">Copiar</button>
+            </div>
         </div>
     </div>
 
-    <div class="text-center py-5 no-print space-x-2 md:space-x-4">
-        <button id="downloadPngButton" class="bg-[var(--primary-color)] hover:opacity-90 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-opacity">
-            <i class="fas fa-image mr-2"></i><span class="hidden md:inline">Baixar Imagem (PNG)</span>
-        </button>
-        <button id="downloadHtmlButton" class="bg-[var(--secondary-color)] hover:opacity-90 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-opacity">
-            <i class="fas fa-code mr-2"></i><span class="hidden md:inline">Baixar HTML</span>
-        </button>
-        <button id="downloadPdfButton" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors">
-            <i class="fas fa-file-pdf mr-2"></i><span class="hidden md:inline">Baixar PDF</span>
-        </button>
+    <!-- DOCK DE CONTROLE -->
+    <div id="control-dock">
+        <div>
+            <span class="dock-label">Estilos</span>
+            <div class="color-scroll-container">
+                <div class="flex items-center gap-2 border-r pr-2 border-gray-200">
+                    <span class="color-group-label">ALVO</span>
+                    <div class="color-dot" style="background: #004B8D; border-color: #A0A0A0" onclick="setTheme('#004B8D', '#546E7A')" title="Metafrio"></div>
+                    <div class="color-dot" style="background: #009640; border-color: #005596" onclick="setTheme('#003B26', '#009640')" title="Bracell"></div>
+                    <div class="color-dot" style="background: #008542; border-color: #FFC72C" onclick="setTheme('#008542', '#FFC72C')" title="Petrobras"></div>
+                    <div class="color-dot" style="background: #007680; border-color: #F0AB00" onclick="setTheme('#007680', '#D99800')" title="Vale"></div>
+                </div>
+                <div class="flex items-center gap-2 border-r pr-2 border-gray-200 ml-2">
+                    <span class="color-group-label">CLÁSSICO</span>
+                    <div class="color-dot bg-slate-900" onclick="setTheme('#0f172a', '#2563eb')" title="Executivo"></div>
+                    <div class="color-dot bg-gray-800" onclick="setTheme('#1f2937', '#4b5563')" title="Cinza"></div>
+                    <div class="color-dot" style="background: #1e3a8a" onclick="setTheme('#1e3a8a', '#3b82f6')" title="Azul Royal"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dock-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f9;">
+            <div class="flex items-center gap-2">
+                <span class="dock-label" style="margin-right: 5px;">DADOS:</span>
+                <button class="btn-action secondary btn-sm" onclick="exportData()"><i class="fas fa-download"></i> Backup JSON</button>
+                <button class="btn-action secondary btn-sm" onclick="document.getElementById('import-json').click()"><i class="fas fa-upload"></i> Restaurar</button>
+                <input type="file" id="import-json" class="hidden" accept=".json" onchange="importData(this)">
+            </div>
+        </div>
+
+        <div class="dock-row" style="margin-top: 10px;">
+            <div class="flex items-center gap-2">
+                <button class="btn-action ai" onclick="toggleAI()"><i class="fas fa-robot"></i> IA</button>
+                <button class="btn-action secondary" onclick="toggleElement('photo-area')"><i class="fas fa-camera"></i> Foto</button>
+                <button class="btn-action secondary" onclick="toggleElement('qr-area')"><i class="fas fa-qrcode"></i> QR</button>
+            </div>
+            <div class="flex items-center gap-2 ml-auto">
+                <button class="btn-action accent" onclick="generatePDF(true)"><i class="fas fa-file-pdf"></i> PDF (Alta Qualidade)</button>
+                <button class="btn-action" style="background-color: #059669;" onclick="saveProject()"><i class="fas fa-save"></i> Salvar HTML</button>
+            </div>
+        </div>
     </div>
-    
+
+    <!-- SCRIPTS -->
     <script>
-        const { jsPDF } = window.jspdf;
-        const profilePhoto = document.getElementById('profilePhoto');
-        const photoUpload = document.getElementById('photoUpload');
-        const downloadPngButton = document.getElementById('downloadPngButton');
-        const downloadHtmlButton = document.getElementById('downloadHtmlButton');
-        const downloadPdfButton = document.getElementById('downloadPdfButton');
-
-        profilePhoto.addEventListener('click', () => photoUpload.click());
-
-        photoUpload.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => { profilePhoto.src = e.target.result; }
-                reader.readAsDataURL(file);
-            }
-        });
-
-        const handleDownload = (button, format) => {
-            const element = document.getElementById('curriculumContent');
-            const flexContainer = document.getElementById('flexContainer');
-            const originalButtonText = button.innerHTML;
-
-            button.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Gerando...`;
-            button.disabled = true;
-            
-            element.style.width = '896px';
-            flexContainer.style.flexDirection = 'row';
-            
-            const editableFields = document.querySelectorAll('[contenteditable="true"]');
-            editableFields.forEach(field => field.style.outline = 'none');
-
-            html2canvas(element, { 
-                scale: 2,
-                useCORS: true, 
-                logging: false, 
-                letterRendering: true 
-            })
-                .then(canvas => {
-                    const fileName = 'Meu_Curriculo_Profissional';
-                    if (format === 'png') {
-                        const link = document.createElement('a');
-                        link.download = `${fileName}.png`;
-                        link.href = canvas.toDataURL('image/png');
-                        link.click();
-                    } 
-                    else if (format === 'pdf') {
-                        const imgData = canvas.toDataURL('image/jpeg', 0.8);
-                        const pdf = new jsPDF('p', 'mm', 'a4');
-                        const pdfWidth = pdf.internal.pageSize.getWidth();
-                        const canvasAspectRatio = canvas.width / canvas.height;
-                        const imgHeight = pdfWidth / canvasAspectRatio;
-                        
-                        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, imgHeight, undefined, 'MEDIUM');
-                        pdf.save(`${fileName}.pdf`);
-                    }
-
-                    element.style.width = '';
-                    flexContainer.style.flexDirection = '';
-
-                    button.innerHTML = originalButtonText;
-                    button.disabled = false;
-                    editableFields.forEach(field => field.style.outline = '2px dashed #f9d6d3');
-                }).catch(err => {
-                    console.error(`Erro ao gerar o ${format.toUpperCase()}:`, err);
-                    
-                    element.style.width = '';
-                    flexContainer.style.flexDirection = '';
-
-                    button.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Erro!';
-                    button.disabled = false;
-                    editableFields.forEach(field => field.style.outline = '2px dashed #f9d6d3');
-                });
-        };
-
-        downloadPngButton.addEventListener('click', () => handleDownload(downloadPngButton, 'png'));
-        downloadPdfButton.addEventListener('click', () => handleDownload(downloadPdfButton, 'pdf'));
-
-        downloadHtmlButton.addEventListener('click', () => {
-            const clone = document.documentElement.cloneNode(true);
-            const editableFieldsClone = clone.querySelectorAll('[contenteditable="true"]');
-            editableFieldsClone.forEach(field => {
-                field.removeAttribute('contenteditable');
-                field.style.outline = 'none';
-                field.style.backgroundColor = 'transparent';
-                field.style.cursor = 'default';
+        // --- AUTO-SAVE ---
+        function setupAutoSave() {
+            const editables = document.querySelectorAll('[contenteditable="true"]');
+            editables.forEach(el => {
+                const id = el.id || el.parentElement.className + '-child'; 
+                if(id) {
+                    const saved = localStorage.getItem('autosave_' + id);
+                    if(saved && saved.trim().length > 0) el.innerHTML = saved;
+                    el.addEventListener('input', () => localStorage.setItem('autosave_' + id, el.innerHTML));
+                }
             });
-            const fullHtml = `<!DOCTYPE html>${clone.outerHTML}`;
+        }
+        window.addEventListener('load', setupAutoSave);
+
+        // --- SETUP IMAGENS ---
+        function handleImageUpload(inputId, imgId, bgMode = false) {
+            document.getElementById(inputId).addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        if (bgMode) document.getElementById('watermark-layer').style.backgroundImage = `url('${ev.target.result}')`;
+                        else document.getElementById(imgId).src = ev.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        handleImageUpload('upload-photo', 'img-preview');
+        handleImageUpload('upload-qr', 'qr-preview');
+
+        // --- TEMA E TOGGLE ---
+        function setTheme(primary, accent) {
+            document.documentElement.style.setProperty('--primary-color', primary);
+            document.documentElement.style.setProperty('--accent-color', accent);
+        }
+        function toggleElement(elementId) {
+            const el = document.getElementById(elementId);
+            el.style.display = (el.style.display === 'none') ? (elementId === 'photo-area' ? 'block' : 'flex') : 'none';
+        }
+
+        // --- BACKUP ---
+        function exportData() {
+            const data = {
+                profile: {
+                    name: document.getElementById('editable-name').innerText,
+                    role: document.getElementById('editable-role').innerText,
+                    summary: document.getElementById('editable-summary').innerHTML, 
+                    contactHTML: document.getElementById('editable-contact').innerHTML
+                },
+                sections: {
+                    experienceHTML: document.getElementById('editable-experience').innerHTML,
+                    educationHTML: document.getElementById('editable-education').innerHTML,
+                    skillsHTML: document.getElementById('editable-skills').innerHTML
+                },
+                images: {
+                    photo: document.getElementById('img-preview').src,
+                    qr: document.getElementById('qr-preview').src
+                },
+                theme: {
+                    primary: getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(),
+                    accent: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim()
+                }
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+            const a = document.createElement('a');
+            a.href = dataStr; a.download = "backup_curriculo_wellington.json";
+            document.body.appendChild(a); a.click(); a.remove();
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if(data.profile) {
+                        document.getElementById('editable-name').innerText = data.profile.name;
+                        document.getElementById('editable-role').innerText = data.profile.role;
+                        document.getElementById('editable-summary').innerHTML = data.profile.summary;
+                        document.getElementById('editable-contact').innerHTML = data.profile.contactHTML;
+                    }
+                    if(data.sections) {
+                        document.getElementById('editable-experience').innerHTML = data.sections.experienceHTML;
+                        document.getElementById('editable-education').innerHTML = data.sections.educationHTML;
+                        document.getElementById('editable-skills').innerHTML = data.sections.skillsHTML;
+                    }
+                    if(data.images) {
+                        if(data.images.photo && data.images.photo.startsWith('data:')) document.getElementById('img-preview').src = data.images.photo;
+                        if(data.images.qr && data.images.qr.startsWith('data:')) document.getElementById('qr-preview').src = data.images.qr;
+                    }
+                    if(data.theme) setTheme(data.theme.primary, data.theme.accent);
+                    alert('Dados restaurados com sucesso! Verifique se a formatação está correta.');
+                } catch (error) { alert('Erro ao ler o arquivo JSON.'); }
+            };
+            reader.readAsText(file); input.value = ''; 
+        }
+
+        // --- IA ---
+        function toggleAI() { document.getElementById('ai-panel').classList.toggle('active'); checkKey(); }
+        function checkKey() {
+            const key = localStorage.getItem('gemini_api_key_resume');
+            if (key) { document.getElementById('gemini-key').value = key; document.getElementById('api-key-section').style.display = 'none'; document.getElementById('ai-actions').style.display = 'flex'; }
+            else { document.getElementById('api-key-section').style.display = 'block'; document.getElementById('ai-actions').style.display = 'none'; }
+        }
+        function saveKey() {
+            const key = document.getElementById('gemini-key').value.trim();
+            if (key) { localStorage.setItem('gemini_api_key_resume', key); alert('Chave salva!'); checkKey(); }
+        }
+        async function runAI(mode) {
+            const outputDiv = document.getElementById('ai-output');
+            const key = localStorage.getItem('gemini_api_key_resume');
+            if (!key) { alert('Chave API não configurada!'); return; }
+            outputDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Pensando...'; outputDiv.style.display = 'block';
+            let prompt = "";
+            let context = document.getElementById('resume-paper').innerText;
+            let selection = window.getSelection().toString();
+
+            if (mode === 'rewrite') {
+                if (!selection || selection.length < 5) { outputDiv.innerHTML = '<span style="color:red">Selecione um texto para reescrever.</span>'; return; }
+                prompt = `Aja como um Recrutador Sênior. Reescreva este texto de currículo para ser mais executivo, direto e focado em resultados (Use verbos de ação): "${selection}"`;
+            } else if (mode === 'ats_check') {
+                prompt = `Analise este currículo para sistemas ATS. Liste 3 palavras-chave faltantes para Segurança do Trabalho e dê uma nota de 0 a 10 para clareza: ${context}`;
+            } else if (mode === 'summary') {
+                prompt = `Escreva um resumo profissional de 3 linhas focado em Segurança do Trabalho e Liderança com base nisto: ${context}`;
+            }
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${key}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                const data = await response.json();
+                outputDiv.innerHTML = marked.parse(data.candidates[0].content.parts[0].text);
+                document.getElementById('copy-ai-btn').style.display = 'block';
+            } catch (error) { outputDiv.innerHTML = `<span style="color:red">Erro: ${error.message}</span>`; }
+        }
+        function copyAIResult() { navigator.clipboard.writeText(document.getElementById('ai-output').innerText); alert('Copiado!'); }
+
+        // --- GERAÇÃO PDF CORRIGIDA (ASPECT RATIO) ---
+        window.jsPDF = window.jspdf.jsPDF;
+        async function generatePDF(isComplete) {
+            const paper = document.getElementById('resume-paper');
+            const btn = event.target;
+            const originalText = btn.innerHTML;
             
-            const blob = new Blob([fullHtml], { type: 'text/html' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'meu-curriculo.html';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
-        });
+            const photoEl = document.getElementById('photo-area');
+            const qrEl = document.getElementById('qr-area');
+            const guideEl = document.getElementById('page-break-guide'); // Esconde a guia vermelha
+            
+            const originalPhotoDisplay = photoEl.style.display;
+            const originalQrDisplay = qrEl.style.display;
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+            guideEl.style.display = 'none'; // Esconde guia
+
+            if (!isComplete) { photoEl.style.display = 'none'; qrEl.style.display = 'none'; }
+
+            try {
+                // Configuração Otimizada para Qualidade sem Distorção
+                const canvas = await html2canvas(paper, {
+                    scale: 2, // Alta resolução
+                    useCORS: true,
+                    logging: false,
+                    // REMOVIDO width fixo para permitir captura natural
+                });
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const pdfWidth = pdf.internal.pageSize.getWidth(); // 210mm
+                // CÁLCULO DE PROPORÇÃO PARA EVITAR ACHATAMENTO
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                
+                const fileName = isComplete ? 'Curriculo_Completo_Wellington.pdf' : 'Curriculo_ATS_Wellington.pdf';
+                pdf.save(fileName);
+
+            } catch (error) {
+                console.error(error);
+                alert('Erro ao gerar PDF. Tente imprimir pelo navegador (Ctrl+P).');
+            } finally {
+                if (!isComplete) { photoEl.style.display = originalPhotoDisplay; qrEl.style.display = originalQrDisplay; }
+                guideEl.style.display = 'block'; // Mostra guia de volta
+                btn.innerHTML = originalText;
+            }
+        }
+
+        function saveProject() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], {type: 'text/html'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'meu_projeto_curriculo.html';
+            a.click();
+        }
     </script>
 
-</body>
-</html>
+
+
+
+</body></html>
