@@ -28,7 +28,7 @@
         }
 
         body {
-            background-color: #e2e8f0;
+            background-color: #f0f2f5; /* Fundo mais claro para destacar o papel */
             font-family: 'Roboto', sans-serif;
             display: flex;
             flex-direction: column;
@@ -36,7 +36,8 @@
             min-height: 100vh;
             margin: 0;
             padding-top: 20px;
-            padding-bottom: 160px;
+            /* Espaço compensatório para o dock fixo em mobile e desktop */
+            padding-bottom: 240px; 
         }
 
         /* --- FOLHA A4 PIXEL PERFECT --- */
@@ -44,15 +45,29 @@
             width: var(--paper-width);
             min-height: var(--paper-height); 
             background: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             position: relative;
-            padding: 15mm 15mm;
+            padding: 10mm 12mm; 
             box-sizing: border-box;
             overflow: hidden; 
-            /* Melhoria na renderização de texto */
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             text-rendering: geometricPrecision;
+        }
+
+        /* Responsividade para Mobile */
+        @media (max-width: 768px) {
+            #resume-paper {
+                width: 100%;
+                min-height: auto;
+                margin: 0;
+                box-shadow: none;
+                padding: 5mm;
+            }
+            body {
+                padding-top: 0;
+                background-color: white;
+            }
         }
 
         /* Linha Guia de Fim da Página (Apenas Visual) */
@@ -99,14 +114,13 @@
         
         .editable:hover {
             background-color: rgba(37, 99, 235, 0.05);
-            border-color: rgba(37, 99, 235, 0.3);
             border-radius: 4px;
         }
 
         .editable:focus {
             background-color: white;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            /* Foco sutil sem borda preta forte */
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); 
         }
 
         .tutorial-text {
@@ -121,8 +135,8 @@
         }
         ul.custom-list li {
             position: relative;
-            padding-left: 1.2rem;
-            margin-bottom: 0.4rem;
+            padding-left: 1.0rem; 
+            margin-bottom: 0.2rem; 
         }
         ul.custom-list li::before {
             content: "•";
@@ -136,15 +150,22 @@
         .section-header {
             display: flex;
             align-items: center;
-            border-bottom: 2px solid var(--primary-color);
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.25rem;
+            justify-content: space-between; 
+            /* REMOVIDA A LINHA PRETA */
+            /* border-bottom: 2px solid var(--primary-color); */
+            margin-top: 1.2rem; /* Ajustado margem */
+            margin-bottom: 0.8rem; /* Ajustado margem */
+            padding-bottom: 0; 
         }
         
+        .section-title-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
         .section-title {
-            font-size: 1.1rem;
-            font-weight: 700;
+            font-size: 1.1rem; /* Aumentado ligeiramente para compensar a falta da linha */
+            font-weight: 800; /* Mais peso */
             text-transform: uppercase;
             color: var(--primary-color);
             letter-spacing: 0.05em;
@@ -153,15 +174,38 @@
         .section-icon {
             margin-right: 0.5rem;
             color: var(--accent-color);
-            font-size: 1.1rem;
+            font-size: 1.1rem; 
+        }
+
+        /* Botão Adicionar Item (+) */
+        .btn-add-item {
+            background: none;
+            border: 1px solid #cbd5e1;
+            color: #64748b;
+            width: 20px; 
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: 8px;
+        }
+        .btn-add-item:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
         }
 
         /* Foto */
         .photo-container {
-            width: 130px;
-            height: 130px;
+            width: 110px; 
+            height: 110px;
             border-radius: 50%;
-            border: 4px solid var(--primary-color);
+            /* Borda removida ou suavizada */
+            border: 3px solid var(--primary-color);
             overflow: hidden;
             position: relative;
             cursor: pointer;
@@ -186,9 +230,9 @@
 
         /* QR Code */
         .qr-container {
-            width: 80px;
-            height: 80px;
-            border: 2px dashed #cbd5e1;
+            width: 70px; 
+            height: 70px;
+            border: 1px dashed #cbd5e1; /* Borda mais suave */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -197,29 +241,26 @@
         }
         .qr-container:hover { border-color: var(--accent-color); }
 
-        /* --- PAINEL DE CONTROLE FLUTUANTE --- */
+        /* --- PAINEL DE CONTROLE FIXO (DOCK) --- */
         #control-dock {
             position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 0;
+            left: 0;
+            width: 100%;
             background: white;
-            padding: 15px 20px;
-            border-radius: 16px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+            padding: 12px 15px;
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
             z-index: 1000;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            border: 1px solid #e2e8f0;
-            width: 95%;
-            max-width: 900px;
+            gap: 10px;
         }
 
         .dock-row {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
             justify-content: space-between;
             flex-wrap: wrap;
         }
@@ -229,19 +270,20 @@
             text-transform: uppercase;
             font-weight: bold;
             color: #64748b;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             display: block;
         }
 
+        /* Scroll de Cores */
         .color-scroll-container {
             display: flex;
             gap: 8px;
             overflow-x: auto;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
             max-width: 100%;
             scrollbar-width: thin;
         }
-        .color-scroll-container::-webkit-scrollbar { height: 6px; }
+        .color-scroll-container::-webkit-scrollbar { height: 4px; }
         .color-scroll-container::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
 
         .color-group-label {
@@ -255,6 +297,7 @@
             white-space: nowrap;
         }
 
+        /* Bolinhas de Cor Bicolor */
         .color-dot {
             width: 28px; height: 28px; border-radius: 50%;
             cursor: pointer; border: 2px solid white;
@@ -262,7 +305,13 @@
             transition: transform 0.2s;
             flex-shrink: 0;
             position: relative;
+            background-size: 100% 100%;
         }
+        /* Efeito visual para mostrar as duas cores */
+        .color-dot-dual {
+            background: linear-gradient(135deg, var(--c-prim) 50%, var(--c-sec) 50%);
+        }
+        
         .color-dot:hover { transform: scale(1.15); z-index: 10; }
         .color-dot::after {
             content: attr(title);
@@ -287,8 +336,8 @@
             background: var(--primary-color);
             color: white;
             border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
             font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
@@ -309,23 +358,24 @@
         }
         .btn-action.ai:hover { box-shadow: 0 0 10px var(--ai-color); }
 
-        /* --- PAINEL IA (Overlay) --- */
+        /* --- PAINEL IA (Overlay Ajustado) --- */
         #ai-panel {
             position: fixed;
-            bottom: 160px;
+            /* Ajustado para ficar acima do dock fixo (altura estimada do dock ~200px) */
+            bottom: 210px; 
             left: 50%;
             transform: translateX(-50%);
-            width: 90%;
+            width: 95%;
             max-width: 600px;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 -5px 30px rgba(0,0,0,0.2);
             border: 1px solid #e2e8f0;
-            padding: 20px;
-            z-index: 999;
+            padding: 15px;
+            z-index: 1001; /* Maior que o dock */
             display: none;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
         
         #ai-panel.active { display: flex; animation: slideUp 0.3s ease-out; }
@@ -336,18 +386,18 @@
         }
 
         .ai-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
-        .ai-title { font-weight: bold; color: var(--ai-color); font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+        .ai-title { font-weight: bold; color: var(--ai-color); font-size: 1rem; display: flex; align-items: center; gap: 8px; }
         
         .ai-input-group { display: flex; gap: 10px; }
         .ai-input { flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; }
         .ai-result-area { 
             background: #f8fafc; 
-            padding: 15px; 
+            padding: 10px; 
             border-radius: 8px; 
             border: 1px dashed #cbd5e1; 
-            max-height: 200px; 
+            max-height: 180px; 
             overflow-y: auto; 
-            font-size: 0.9rem; 
+            font-size: 0.85rem; 
             line-height: 1.5;
             color: #334155;
         }
@@ -357,12 +407,12 @@
 
         @media print {
             body { background: white; padding: 0; display: block; }
-            #control-dock, #ai-panel, #page-break-guide { display: none !important; }
+            #control-dock, #ai-panel, #page-break-guide, .btn-add-item { display: none !important; }
             #resume-paper { box-shadow: none; margin: 0; width: 100%; height: auto; }
             .editable { border: none !important; }
         }
     </style>
-<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-6{margin-bottom:1.5rem}.ml-2{margin-left:0.5rem}.ml-auto{margin-left:auto}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-4{margin-top:1rem}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-full{height:100%}.w-full{width:100%}.flex-shrink-0{flex-shrink:0}.flex-grow{flex-grow:1}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-2{gap:0.5rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.overflow-x-auto{overflow-x:auto}.border-r{border-right-width:1px}.border-gray-200{--tw-border-opacity:1;border-color:rgb(229 231 235 / var(--tw-border-opacity, 1))}.bg-gray-800{--tw-bg-opacity:1;background-color:rgb(31 41 55 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.object-cover{object-fit:cover}.p-1{padding:0.25rem}.pb-2{padding-bottom:0.5rem}.pr-2{padding-right:0.5rem}.text-center{text-align:center}.text-justify{text-align:justify}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[0\.6rem\]{font-size:0.6rem}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.tracking-tight{letter-spacing:-0.025em}.tracking-wide{letter-spacing:0.025em}.text-\[var\(--accent-color\)\]{color:var(--accent-color)}.text-\[var\(--primary-color\)\]{color:var(--primary-color)}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}@media (min-width: 768px){.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:flex-row{flex-direction:row}.md\:justify-start{justify-content:flex-start}.md\:text-left{text-align:left}}</style></head>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.mb-0{margin-bottom:0px}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-4{margin-bottom:1rem}.ml-auto{margin-left:auto}.mt-1{margin-top:0.25rem}.mt-3{margin-top:0.75rem}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-full{height:100%}.w-full{width:100%}.flex-shrink-0{flex-shrink:0}.flex-grow{flex-grow:1}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.overflow-x-auto{overflow-x:auto}.object-cover{object-fit:cover}.p-1{padding:0.25rem}.pb-2{padding-bottom:0.5rem}.text-center{text-align:center}.text-justify{text-align:justify}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[0\.5rem\]{font-size:0.5rem}.text-base{font-size:1rem;line-height:1.5rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.tracking-tight{letter-spacing:-0.025em}.tracking-wide{letter-spacing:0.025em}.text-\[var\(--accent-color\)\]{color:var(--accent-color)}.text-\[var\(--primary-color\)\]{color:var(--primary-color)}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}@media (min-width: 768px){.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:flex-row{flex-direction:row}.md\:justify-start{justify-content:flex-start}.md\:text-left{text-align:left}}</style></head>
 <body>
 
     <!-- PAPEL A4 DO CURRÍCULO -->
@@ -371,7 +421,7 @@
         <div id="page-break-guide" title="O conteúdo abaixo desta linha pode ser cortado"></div>
 
         <!-- Cabeçalho -->
-        <header class="flex flex-col md:flex-row items-center gap-6 mb-6">
+        <header class="flex flex-col md:flex-row items-center gap-4 mb-4">
             
             <!-- Foto -->
             <div id="photo-area" class="flex-shrink-0" style="display: none;">
@@ -384,10 +434,10 @@
 
             <!-- Dados Pessoais -->
             <div class="flex-grow text-center md:text-left w-full">
-                <div id="editable-name" class="editable text-3xl font-black text-[var(--primary-color)] uppercase tracking-tight mb-1" contenteditable="true">[SEU NOME COMPLETO]</div>
-                <div id="editable-role" class="editable text-lg font-semibold text-[var(--accent-color)] mb-3" contenteditable="true">[SEU CARGO OU OBJETIVO]</div>
+                <div id="editable-name" class="editable text-2xl font-black text-[var(--primary-color)] uppercase tracking-tight mb-1" contenteditable="true">[SEU NOME COMPLETO]</div>
+                <div id="editable-role" class="editable text-base font-semibold text-[var(--accent-color)] mb-2" contenteditable="true">[SEU CARGO OU OBJETIVO]</div>
                 
-                <div id="editable-contact" class="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-gray-600 mt-2">
+                <div id="editable-contact" class="flex flex-wrap justify-center md:justify-start gap-3 text-xs text-gray-600 mt-1">
                     <div class="flex items-center gap-1 editable" contenteditable="true">
                         <i class="fas fa-map-marker-alt text-[var(--accent-color)]"></i> [Cidade, Estado]
                     </div>
@@ -400,6 +450,10 @@
                     <div class="flex items-center gap-1 editable" contenteditable="true">
                         <i class="fab fa-linkedin text-[var(--accent-color)]"></i> [linkedin.com/in/seu-perfil]
                     </div>
+                    <div class="flex items-center gap-1 editable" contenteditable="true" id="editable-age">
+                        <i class="fas fa-calendar-alt text-[var(--accent-color)]"></i>
+                        <span id="auto-age">Calculando idade...</span>
+                    </div>
                 </div>
             </div>
 
@@ -409,7 +463,7 @@
                     <img id="qr-preview" src="https://via.placeholder.com/80?text=QR+Code" class="w-full h-full object-cover p-1">
                 </div>
                 <input type="file" id="upload-qr" class="hidden" accept="image/*">
-                <span class="text-[0.6rem] text-gray-400 mt-1 uppercase tracking-wide">Seu Portfólio</span>
+                <span class="text-[0.5rem] text-gray-400 mt-1 uppercase tracking-wide">Seu Portfólio</span>
             </div>
         </header>
 
@@ -418,10 +472,12 @@
             <!-- Objetivo -->
             <section>
                 <div class="section-header">
-                    <i class="fas fa-bullseye section-icon"></i>
-                    <h2 class="section-title">Resumo Profissional</h2>
+                    <div class="section-title-wrapper">
+                        <i class="fas fa-bullseye section-icon"></i>
+                        <h2 class="section-title">Resumo Profissional</h2>
+                    </div>
                 </div>
-                <div id="editable-summary" class="editable text-gray-700 text-sm leading-relaxed text-justify tutorial-text" contenteditable="true">
+                <div id="editable-summary" class="editable text-gray-700 text-xs leading-relaxed text-justify tutorial-text" contenteditable="true">
                     [Este é o seu "Elevator Pitch". Escreva um parágrafo de 3 a 5 linhas resumindo sua experiência. Responda a três perguntas: 1. Quem é você? (Ex: Técnico em Segurança com 5 anos de experiência). 2. O que você faz de melhor? (Ex: Especialista em NRs e redução de custos). 3. Qual seu diferencial? (Ex: Foco em análise de dados e liderança de equipes). Evite clichês como "proativo" e foque em resultados.]
                 </div>
             </section>
@@ -429,20 +485,23 @@
             <!-- Experiência -->
             <section>
                 <div class="section-header">
-                    <i class="fas fa-briefcase section-icon"></i>
-                    <h2 class="section-title">Experiência Profissional</h2>
+                    <div class="section-title-wrapper">
+                        <i class="fas fa-briefcase section-icon"></i>
+                        <h2 class="section-title">Experiência Profissional</h2>
+                    </div>
+                    <button class="btn-add-item" onclick="addExperienceBlock()" title="Adicionar Nova Experiência"><i class="fas fa-plus"></i></button>
                 </div>
                 
-                <div id="editable-experience" class="space-y-5">
+                <div id="editable-experience" class="space-y-4">
                     <!-- Item 1: Template de Experiência -->
                     <div class="experience-block">
-                        <div class="flex justify-between items-baseline mb-1">
-                            <h3 class="editable font-bold text-gray-800 text-base" contenteditable="true">[NOME DA EMPRESA MAIS RECENTE]</h3>
-                            <span class="editable text-sm font-semibold text-gray-500" contenteditable="true">[Mês/Ano] – [Atual/Fim]</span>
+                        <div class="flex justify-between items-baseline mb-0">
+                            <h3 class="editable font-bold text-gray-800 text-sm" contenteditable="true">[NOME DA EMPRESA MAIS RECENTE]</h3>
+                            <span class="editable text-xs font-semibold text-gray-500" contenteditable="true">[Mês/Ano] – [Atual/Fim]</span>
                         </div>
-                        <div class="editable text-sm font-bold text-[var(--accent-color)] mb-2" contenteditable="true">[Seu Cargo nesta empresa]</div>
+                        <div class="editable text-xs font-bold text-[var(--accent-color)] mb-1" contenteditable="true">[Seu Cargo nesta empresa]</div>
                         
-                        <ul class="custom-list text-sm text-gray-700 leading-snug tutorial-text">
+                        <ul class="custom-list text-xs text-gray-700 leading-snug tutorial-text">
                             <li class="editable" contenteditable="true"><strong>Conquista Principal:</strong> [Comece com um verbo de ação (Liderei, Implementei, Reduzi). Descreva o que você fez e qual foi o resultado numérico. Ex: Reduzi em 30% os acidentes.]</li>
                             <li class="editable" contenteditable="true"><strong>Responsabilidade Chave:</strong> [Descreva uma função vital que você exercia. Ex: Gestão de equipe de 10 pessoas ou Interface com órgãos reguladores.]</li>
                             <li class="editable" contenteditable="true"><strong>Ferramenta/Técnica:</strong> [Mencione uma tecnologia ou metodologia específica que usou. Ex: Implementação de sistema Kanban para gestão de resíduos.]</li>
@@ -451,27 +510,27 @@
 
                     <!-- Item 2: Template de Experiência -->
                     <div class="experience-block">
-                        <div class="flex justify-between items-baseline mb-1">
-                            <h3 class="editable font-bold text-gray-800 text-base" contenteditable="true">[NOME DA EMPRESA ANTERIOR]</h3>
-                            <span class="editable text-sm font-semibold text-gray-500" contenteditable="true">[Mês/Ano] – [Mês/Ano]</span>
+                        <div class="flex justify-between items-baseline mb-0">
+                            <h3 class="editable font-bold text-gray-800 text-sm" contenteditable="true">[NOME DA EMPRESA ANTERIOR]</h3>
+                            <span class="editable text-xs font-semibold text-gray-500" contenteditable="true">[Mês/Ano] – [Mês/Ano]</span>
                         </div>
-                        <div class="editable text-sm font-bold text-[var(--accent-color)] mb-2" contenteditable="true">[Seu Cargo Anterior]</div>
+                        <div class="editable text-xs font-bold text-[var(--accent-color)] mb-1" contenteditable="true">[Seu Cargo Anterior]</div>
                         
-                        <ul class="custom-list text-sm text-gray-700 leading-snug tutorial-text">
+                        <ul class="custom-list text-xs text-gray-700 leading-snug tutorial-text">
                             <li class="editable" contenteditable="true"><strong>Projeto Relevante:</strong> [Descreva um projeto específico que teve início, meio e fim. Destaque sua contribuição pessoal.]</li>
                             <li class="editable" contenteditable="true"><strong>Rotina Operacional:</strong> [Liste suas responsabilidades diárias mais importantes, usando palavras-chave da sua área (ex: auditoria, fiscalização, relatórios).]</li>
                         </ul>
                     </div>
 
-                    <!-- Item 3: Template de Experiência (Atualizado com 3 linhas) -->
+                    <!-- Item 3: Template de Experiência -->
                     <div class="experience-block">
-                        <div class="flex justify-between items-baseline mb-1">
-                            <h3 class="editable font-bold text-gray-800 text-base" contenteditable="true">[NOME DA EMPRESA ANTERIOR]</h3>
-                            <span class="editable text-sm font-semibold text-gray-500" contenteditable="true">[Mês/Ano] – [Mês/Ano]</span>
+                        <div class="flex justify-between items-baseline mb-0">
+                            <h3 class="editable font-bold text-gray-800 text-sm" contenteditable="true">[NOME DA EMPRESA ANTERIOR]</h3>
+                            <span class="editable text-xs font-semibold text-gray-500" contenteditable="true">[Mês/Ano] – [Mês/Ano]</span>
                         </div>
-                        <div class="editable text-sm font-bold text-[var(--accent-color)] mb-2" contenteditable="true">[Seu Cargo Inicial/Anterior]</div>
+                        <div class="editable text-xs font-bold text-[var(--accent-color)] mb-1" contenteditable="true">[Seu Cargo Inicial/Anterior]</div>
                         
-                        <ul class="custom-list text-sm text-gray-700 leading-snug tutorial-text">
+                        <ul class="custom-list text-xs text-gray-700 leading-snug tutorial-text">
                             <li class="editable" contenteditable="true"><strong>Conquista/Projeto:</strong> [Descreva um resultado relevante ou projeto entregue.]</li>
                             <li class="editable" contenteditable="true"><strong>Atividade Chave:</strong> [Descreva sua principal responsabilidade diária.]</li>
                             <li class="editable" contenteditable="true"><strong>Ferramenta/Habilidade:</strong> [Cite uma competência técnica utilizada.]</li>
@@ -481,15 +540,18 @@
             </section>
 
             <!-- Grid 2 Colunas -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-3">
                 
                 <!-- Formação -->
                 <section>
                     <div class="section-header">
-                        <i class="fas fa-graduation-cap section-icon"></i>
-                        <h2 class="section-title">Formação Acadêmica</h2>
+                        <div class="section-title-wrapper">
+                            <i class="fas fa-graduation-cap section-icon"></i>
+                            <h2 class="section-title">Formação Acadêmica</h2>
+                        </div>
+                        <button class="btn-add-item" onclick="addEducationBlock()" title="Adicionar Nova Formação"><i class="fas fa-plus"></i></button>
                     </div>
-                    <div id="editable-education" class="space-y-3 text-sm">
+                    <div id="editable-education" class="space-y-2 text-xs">
                         <div class="editable" contenteditable="true">
                             <p class="font-bold text-gray-800">[Nome do Curso / Graduação]</p>
                             <p class="text-gray-600">[Nome da Instituição] | [Status: Cursando ou Concluído em Ano]</p>
@@ -508,10 +570,13 @@
                 <!-- Competências -->
                 <section>
                     <div class="section-header">
-                        <i class="fas fa-tools section-icon"></i>
-                        <h2 class="section-title">Competências</h2>
+                        <div class="section-title-wrapper">
+                            <i class="fas fa-tools section-icon"></i>
+                            <h2 class="section-title">Competências</h2>
+                        </div>
+                        <button class="btn-add-item" onclick="addSkillItem()" title="Adicionar Nova Competência"><i class="fas fa-plus"></i></button>
                     </div>
-                    <ul id="editable-skills" class="custom-list text-sm text-gray-700 leading-snug tutorial-text">
+                    <ul id="editable-skills" class="custom-list text-xs text-gray-700 leading-snug tutorial-text">
                         <li class="editable" contenteditable="true"><strong>Hard Skills:</strong> [Liste softwares, ferramentas técnicas, legislações (NRs, ISO) que você domina.]</li>
                         <li class="editable" contenteditable="true"><strong>Dados &amp; Tech:</strong> [Cite ferramentas de análise como Excel Avançado, Power BI, Dashboards.]</li>
                         <li class="editable" contenteditable="true"><strong>Soft Skills:</strong> [Liste habilidades comportamentais reais: Liderança, Comunicação, Resolução de Conflitos.]</li>
@@ -549,51 +614,144 @@
         </div>
     </div>
 
-    <!-- DOCK DE CONTROLE -->
+    <!-- DOCK DE CONTROLE FIXO -->
     <div id="control-dock">
-        <div>
-            <span class="dock-label">Estilos</span>
-            <div class="color-scroll-container">
-                <div class="flex items-center gap-2 border-r pr-2 border-gray-200">
-                    <span class="color-group-label">ALVO</span>
-                    <div class="color-dot" style="background: #004B8D; border-color: #A0A0A0" onclick="setTheme('#004B8D', '#546E7A')" title="Metafrio"></div>
-                    <div class="color-dot" style="background: #009640; border-color: #005596" onclick="setTheme('#003B26', '#009640')" title="Bracell"></div>
-                    <div class="color-dot" style="background: #008542; border-color: #FFC72C" onclick="setTheme('#008542', '#FFC72C')" title="Petrobras"></div>
-                    <div class="color-dot" style="background: #007680; border-color: #F0AB00" onclick="setTheme('#007680', '#D99800')" title="Vale"></div>
-                </div>
-                <div class="flex items-center gap-2 border-r pr-2 border-gray-200 ml-2">
-                    <span class="color-group-label">CLÁSSICO</span>
-                    <div class="color-dot bg-slate-900" onclick="setTheme('#0f172a', '#2563eb')" title="Executivo"></div>
-                    <div class="color-dot bg-gray-800" onclick="setTheme('#1f2937', '#4b5563')" title="Cinza"></div>
-                    <div class="color-dot" style="background: #1e3a8a" onclick="setTheme('#1e3a8a', '#3b82f6')" title="Azul Royal"></div>
+        <div class="dock-row">
+            <div class="flex items-center gap-2" style="flex: 1; min-width: 0;">
+                <span class="dock-label">ESTILOS PROFISSIONAIS:</span>
+                <div class="color-scroll-container">
+                    <div class="flex items-center gap-2">
+                        <!-- BANCOS & FINANÇAS -->
+                        <div class="color-group-label" style="writing-mode: initial; margin-right: 5px; color: #EB0029; transform: none;">BANCOS</div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #EB0029; --c-sec: #cccccc;" onclick="setTheme('#EB0029', '#2d2d2d')" title="Vermelho Santander"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #F39200; --c-sec: #005A9C;" onclick="setTheme('#005A9C', '#F39200')" title="Laranja Itaú"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #cc0000; --c-sec: #e6e6e6;" onclick="setTheme('#cc0000', '#666666')" title="Bradesco (Vermelho/Cinza)"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #6a1b9a; --c-sec: #8e24aa;" onclick="setTheme('#4a148c', '#ab47bc')" title="Roxo Tech (Nubank)"></div>
+
+                        <div class="color-group-label" style="writing-mode: initial; margin: 0 5px; color: #004B8D; transform: none;">INDÚSTRIA</div>
+                        <!-- INDÚSTRIA PESADA -->
+                        <div class="color-dot color-dot-dual" style="--c-prim: #e67e22; --c-sec: #003366;" onclick="setTheme('#003366', '#e67e22')" title="Laranja/Azul (Braskem)"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #007680; --c-sec: #D99800;" onclick="setTheme('#007680', '#D99800')" title="Verde/Ouro (Vale)"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #004B8D; --c-sec: #808080;" onclick="setTheme('#004B8D', '#546E7A')" title="Azul/Cinza (Gerdau/Engenharia)"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #003B26; --c-sec: #009640;" onclick="setTheme('#003B26', '#009640')" title="Verde Industrial (Bracell)"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #008542; --c-sec: #FFC72C;" onclick="setTheme('#008542', '#FFC72C')" title="Verde Energia (Petrobras)"></div>
+
+                        <div class="color-group-label" style="writing-mode: initial; margin: 0 5px; color: #000000; transform: none;">BÁSICO+PRETO</div>
+                        <!-- PRETO + BÁSICOS -->
+                        <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #2563eb;" onclick="setTheme('#000000', '#2563eb')" title="Preto com Azul"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #10b981;" onclick="setTheme('#000000', '#10b981')" title="Preto com Verde"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #ef4444;" onclick="setTheme('#000000', '#ef4444')" title="Preto com Vermelho"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #eab308;" onclick="setTheme('#000000', '#eab308')" title="Preto com Amarelo"></div>
+
+                        <div class="color-group-label" style="writing-mode: initial; margin: 0 5px; color: #4b5563; transform: none;">CINZA CHUMBO</div>
+                        <!-- CINZA CHUMBO + DESTAQUES -->
+                        <div class="color-dot color-dot-dual" style="--c-prim: #374151; --c-sec: #3b82f6;" onclick="setTheme('#374151', '#3b82f6')" title="Chumbo com Azul"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #374151; --c-sec: #10b981;" onclick="setTheme('#374151', '#10b981')" title="Chumbo com Verde"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #374151; --c-sec: #f97316;" onclick="setTheme('#374151', '#f97316')" title="Chumbo com Laranja"></div>
+                        
+                        <div class="color-group-label" style="writing-mode: initial; margin: 0 5px; color: #1e3a8a; transform: none;">AZUL ROYAL</div>
+                        <!-- AZUL ROYAL + DESTAQUES -->
+                        <div class="color-dot color-dot-dual" style="--c-prim: #1e3a8a; --c-sec: #93c5fd;" onclick="setTheme('#1e3a8a', '#60a5fa')" title="Azul Royal Ton sur Ton"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #1e3a8a; --c-sec: #fbbf24;" onclick="setTheme('#1e3a8a', '#fbbf24')" title="Azul Royal com Dourado"></div>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="dock-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f9;">
             <div class="flex items-center gap-2">
-                <span class="dock-label" style="margin-right: 5px;">DADOS:</span>
-                <button class="btn-action secondary btn-sm" onclick="exportData()"><i class="fas fa-download"></i> Backup JSON</button>
-                <button class="btn-action secondary btn-sm" onclick="document.getElementById('import-json').click()"><i class="fas fa-upload"></i> Restaurar</button>
+                <button class="btn-action secondary btn-sm" onclick="exportData()" title="Salvar Backup Completo"><i class="fas fa-download"></i> JSON</button>
+                <button class="btn-action secondary btn-sm" onclick="document.getElementById('import-json').click()" title="Restaurar Backup"><i class="fas fa-upload"></i> Restaurar</button>
                 <input type="file" id="import-json" class="hidden" accept=".json" onchange="importData(this)">
             </div>
         </div>
 
-        <div class="dock-row" style="margin-top: 10px;">
+        <div class="dock-row">
             <div class="flex items-center gap-2">
                 <button class="btn-action ai" onclick="toggleAI()"><i class="fas fa-robot"></i> IA</button>
-                <button class="btn-action secondary" onclick="toggleElement('photo-area')"><i class="fas fa-camera"></i> Foto</button>
                 <button class="btn-action secondary" onclick="toggleElement('qr-area')"><i class="fas fa-qrcode"></i> QR</button>
+                <button class="btn-action secondary" onclick="toggleElement('photo-area')"><i class="fas fa-camera"></i> Foto</button>
             </div>
             <div class="flex items-center gap-2 ml-auto">
-                <button class="btn-action accent" onclick="generatePDF(true)"><i class="fas fa-file-pdf"></i> PDF (Alta Qualidade)</button>
-                <button class="btn-action" style="background-color: #059669;" onclick="saveProject()"><i class="fas fa-save"></i> Salvar HTML</button>
+                <button class="btn-action secondary btn-sm" onclick="generatePDF(false)" title="Versão simplificada para robôs"><i class="fas fa-robot"></i> ATS</button>
+                <button class="btn-action accent" onclick="generatePDF(true)"><i class="fas fa-file-pdf"></i> PDF</button>
+                <button class="btn-action" style="background-color: #059669;" onclick="saveProject()"><i class="fas fa-save"></i> HTML</button>
             </div>
         </div>
     </div>
 
     <!-- SCRIPTS -->
     <script>
+        // --- CALCULAR IDADE AUTOMATICAMENTE ---
+        function calculateAge(birthDateString) {
+            // Formato esperado: YYYY-MM-DD ou DD/MM/YYYY
+            let birthDate;
+            if (birthDateString.includes('/')) {
+                const parts = birthDateString.split('/');
+                // DD/MM/YYYY -> YYYY-MM-DD
+                birthDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+            } else {
+                birthDate = new Date(birthDateString);
+            }
+            
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        }
+
+        // Executa o cálculo ao carregar (mas permite edição depois)
+        window.addEventListener('load', () => {
+            const birthDateStr = "21/03/1997"; // Data fornecida pelo usuário
+            const age = calculateAge(birthDateStr);
+            const ageElement = document.getElementById('auto-age');
+            // Só define se o elemento estiver vazio ou com o texto padrão
+            if (ageElement && (ageElement.textContent === "Calculando idade..." || ageElement.textContent === "")) {
+                ageElement.textContent = `${age} Anos`;
+            }
+        });
+
+        // --- ADICIONAR ITENS DINAMICAMENTE (NOVO) ---
+        function addExperienceBlock() {
+            const container = document.getElementById('editable-experience');
+            const newBlock = document.createElement('div');
+            newBlock.className = 'experience-block';
+            newBlock.innerHTML = `
+                <div class="flex justify-between items-baseline mb-0">
+                    <h3 class="editable font-bold text-gray-800 text-sm" contenteditable="true">Nova Empresa</h3>
+                    <span class="editable text-xs font-semibold text-gray-500" contenteditable="true">Mês/Ano – Mês/Ano</span>
+                </div>
+                <div class="editable text-xs font-bold text-[var(--accent-color)] mb-1" contenteditable="true">Seu Cargo</div>
+                <ul class="custom-list text-xs text-gray-700 leading-snug tutorial-text">
+                    <li class="editable" contenteditable="true"><strong>Conquista:</strong> Descreva sua principal realização aqui.</li>
+                    <li class="editable" contenteditable="true">Responsabilidade diária relevante.</li>
+                </ul>
+            `;
+            container.prepend(newBlock); // Adiciona no topo
+        }
+
+        function addEducationBlock() {
+            const container = document.getElementById('editable-education');
+            const newBlock = document.createElement('div');
+            newBlock.className = 'editable';
+            newBlock.contentEditable = "true";
+            newBlock.innerHTML = `
+                <p class="font-bold text-gray-800">Novo Curso / Formação</p>
+                <p class="text-gray-600">Instituição | Status</p>
+            `;
+            container.prepend(newBlock);
+        }
+
+        function addSkillItem() {
+            const container = document.getElementById('editable-skills');
+            const newItem = document.createElement('li');
+            newItem.className = 'editable';
+            newItem.contentEditable = "true";
+            newItem.innerHTML = `<strong>Nova Habilidade:</strong> Descrição breve.`;
+            container.appendChild(newItem);
+        }
+
         // --- AUTO-SAVE ---
         function setupAutoSave() {
             const editables = document.querySelectorAll('[contenteditable="true"]');
@@ -642,7 +800,9 @@
                     name: document.getElementById('editable-name').innerText,
                     role: document.getElementById('editable-role').innerText,
                     summary: document.getElementById('editable-summary').innerHTML, 
-                    contactHTML: document.getElementById('editable-contact').innerHTML
+                    contactHTML: document.getElementById('editable-contact').innerHTML,
+                    // Salva a idade editada manualmente
+                    ageHTML: document.getElementById('editable-age').innerHTML 
                 },
                 sections: {
                     experienceHTML: document.getElementById('editable-experience').innerHTML,
@@ -676,6 +836,10 @@
                         document.getElementById('editable-role').innerText = data.profile.role;
                         document.getElementById('editable-summary').innerHTML = data.profile.summary;
                         document.getElementById('editable-contact').innerHTML = data.profile.contactHTML;
+                        // Restaura a idade se existir no backup
+                        if (data.profile.ageHTML) {
+                            document.getElementById('editable-age').innerHTML = data.profile.ageHTML;
+                        }
                     }
                     if(data.sections) {
                         document.getElementById('editable-experience').innerHTML = data.sections.experienceHTML;
@@ -734,7 +898,7 @@
         }
         function copyAIResult() { navigator.clipboard.writeText(document.getElementById('ai-output').innerText); alert('Copiado!'); }
 
-        // --- GERAÇÃO PDF CORRIGIDA (ASPECT RATIO) ---
+        // --- GERAÇÃO PDF CORRIGIDA ---
         window.jsPDF = window.jspdf.jsPDF;
         async function generatePDF(isComplete) {
             const paper = document.getElementById('resume-paper');
@@ -743,23 +907,23 @@
             
             const photoEl = document.getElementById('photo-area');
             const qrEl = document.getElementById('qr-area');
-            const guideEl = document.getElementById('page-break-guide'); // Esconde a guia vermelha
+            const guideEl = document.getElementById('page-break-guide');
+            const addBtns = document.querySelectorAll('.btn-add-item'); // Esconde botões de adicionar
             
             const originalPhotoDisplay = photoEl.style.display;
             const originalQrDisplay = qrEl.style.display;
 
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
-            guideEl.style.display = 'none'; // Esconde guia
+            guideEl.style.display = 'none';
+            addBtns.forEach(b => b.style.display = 'none');
 
             if (!isComplete) { photoEl.style.display = 'none'; qrEl.style.display = 'none'; }
 
             try {
-                // Configuração Otimizada para Qualidade sem Distorção
                 const canvas = await html2canvas(paper, {
-                    scale: 2, // Alta resolução
+                    scale: 2, 
                     useCORS: true,
                     logging: false,
-                    // REMOVIDO width fixo para permitir captura natural
                 });
 
                 const imgData = canvas.toDataURL('image/jpeg', 0.95);
@@ -769,14 +933,13 @@
                     format: 'a4'
                 });
 
-                const pdfWidth = pdf.internal.pageSize.getWidth(); // 210mm
-                // CÁLCULO DE PROPORÇÃO PARA EVITAR ACHATAMENTO
+                const pdfWidth = pdf.internal.pageSize.getWidth(); 
                 const imgProps = pdf.getImageProperties(imgData);
                 const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
                 pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
                 
-                const fileName = isComplete ? 'Curriculo_Completo_Wellington.pdf' : 'Curriculo_ATS_Wellington.pdf';
+                const fileName = isComplete ? 'Curriculo_Completo.pdf' : 'Curriculo_ATS.pdf';
                 pdf.save(fileName);
 
             } catch (error) {
@@ -784,7 +947,8 @@
                 alert('Erro ao gerar PDF. Tente imprimir pelo navegador (Ctrl+P).');
             } finally {
                 if (!isComplete) { photoEl.style.display = originalPhotoDisplay; qrEl.style.display = originalQrDisplay; }
-                guideEl.style.display = 'block'; // Mostra guia de volta
+                guideEl.style.display = 'block';
+                addBtns.forEach(b => b.style.display = 'flex'); // Mostra botões de volta
                 btn.innerHTML = originalText;
             }
         }
@@ -798,8 +962,5 @@
             a.click();
         }
     </script>
-
-
-
 
 </body></html>
