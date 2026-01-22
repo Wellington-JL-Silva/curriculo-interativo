@@ -15,6 +15,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Biblioteca para ler PDF (Upload do usuário) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <script>
+        // Configuração do Worker do PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
 
     <style>
         /* --- CONFIGURAÇÕES GERAIS E VARIÁVEIS --- */
@@ -275,6 +282,7 @@
             width: 90%; max-width: 650px; background: white; border-radius: 12px;
             box-shadow: 0 -10px 40px rgba(0,0,0,0.2); border: 1px solid #e2e8f0;
             padding: 20px; z-index: 1001; display: none; flex-direction: column; gap: 15px;
+            max-height: 80vh; overflow-y: auto; /* Permitir scroll no painel se ficar muito grande */
         }
         #ai-panel.active { display: flex; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideUp { from { transform: translate(-50%, 40px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
@@ -282,13 +290,25 @@
         .ai-title { font-weight: bold; color: var(--ai-color); font-size: 1.1rem; display: flex; align-items: center; gap: 10px; }
         .ai-input-group { display: flex; gap: 10px; }
         .ai-input { flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; }
+        .ai-textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; min-height: 80px; resize: vertical; margin-bottom: 10px; font-family: monospace; }
         .ai-result-area { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; max-height: 200px; overflow-y: auto; font-size: 0.9rem; line-height: 1.6; color: #334155; }
         .ai-result-area strong { color: var(--ai-color); }
         .ai-result-area ul { padding-left: 20px; list-style-type: disc; }
+        
+        /* Modal de JSON */
+        #json-modal {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 2000;
+            display: none; align-items: center; justify-content: center;
+        }
+        .json-box {
+            background: white; width: 90%; max-width: 600px; padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex; flex-direction: column; gap: 15px;
+        }
 
         @media print {
             body { background: white; padding: 0; display: block; }
-            #control-dock, #ai-panel, #page-break-guide, .btn-add-item, .control-btn, .block-delete-btn, .inner-add-btn { display: none !important; }
+            #control-dock, #ai-panel, #json-modal, #page-break-guide, .btn-add-item, .control-btn, .block-delete-btn, .inner-add-btn { display: none !important; }
             #resume-paper { box-shadow: none; margin: 0; width: 100%; height: auto; padding: var(--paper-padding-top) 15mm 15mm 15mm !important; }
             .editable { border: none !important; }
             .experience-block { border-left: none !important; padding-left: 0 !important; }
@@ -360,7 +380,7 @@
                     </div>
                 </div>
                 <div id="editable-summary" class="editable text-[var(--text-color)] leading-relaxed text-justify tutorial-text" contenteditable="true">
-                    [Aqui vem sua descrição. Escreva um parágrafo de 3 a 5 linhas resumindo sua experiência. Responda a três perguntas: 1. Quem é você? (Ex: Técnico em Segurança com 5 anos de experiência). 2. O que você faz de melhor? (Ex: Especialista em NRs e redução de custos). 3. Qual seu diferencial? (Ex: Foco em análise de dados e liderança de equipes). Evite clichês como "proativo" e foque em resultados.]
+                    [Este é o seu "Elevator Pitch". Escreva um parágrafo de 3 a 5 linhas resumindo sua experiência. Responda a três perguntas: 1. Quem é você? (Ex: Técnico em Segurança com 5 anos de experiência). 2. O que você faz de melhor? (Ex: Especialista em NRs e redução de custos). 3. Qual seu diferencial? (Ex: Foco em análise de dados e liderança de equipes). Evite clichês como "proativo" e foque em resultados.]
                 </div>
             </section>
 
@@ -502,6 +522,7 @@
             <span class="ai-title"><i class="fas fa-robot"></i> Mentor de Carreira (IA)</span>
             <button class="btn-action secondary btn-sm" onclick="toggleAI()">Fechar</button>
         </div>
+        
         <div id="api-key-section">
             <label style="font-size: 0.8rem; font-weight: bold; color: #64748b;">Chave Google Gemini API:</label>
             <div class="ai-input-group">
@@ -510,15 +531,63 @@
             </div>
             <p style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px;">A chave é salva localmente. <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--accent-color);">Gerar Chave</a></p>
         </div>
+
         <div id="ai-actions" style="display:none; flex-direction: column; gap: 10px;">
+            
+            <!-- NOVA SEÇÃO: Contexto para Geração -->
+            <div style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 5px;">
+                <label style="font-size: 0.8rem; font-weight: bold; color: #334155; display:block; margin-bottom: 5px;">
+                    <i class="fas fa-file-import"></i> 1. Anexar Experiência (PDF/TXT):
+                </label>
+                <input type="file" id="context-files" class="ai-input" multiple accept=".txt,.pdf,.json" style="padding: 8px;">
+                <p id="file-status" style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">Nenhum arquivo carregado.</p>
+                
+                <label style="font-size: 0.8rem; font-weight: bold; color: #334155; display:block; margin-top: 10px; margin-bottom: 5px;">
+                    <i class="fas fa-briefcase"></i> 2. Descrição da Vaga:
+                </label>
+                <textarea id="job-description" class="ai-textarea" placeholder="Cole aqui a descrição da vaga, requisitos e responsabilidades..."></textarea>
+
+                <button class="btn-action ai" style="width: 100%; justify-content: center; margin-top: 5px;" onclick="runAI('generate_full')">
+                    🚀 Gerar Currículo Completo
+                </button>
+            </div>
+
+            <!-- Ações Rápidas -->
+            <label style="font-size: 0.75rem; font-weight: bold; color: #94a3b8;">AÇÕES RÁPIDAS:</label>
             <div class="flex gap-2 overflow-x-auto pb-2">
-                <button class="btn-action ai" onclick="runAI('rewrite')">✨ Reescrever</button>
+                <button class="btn-action secondary" onclick="runAI('rewrite')">✨ Reescrever</button>
                 <button class="btn-action secondary" onclick="runAI('ats_check')">🛡️ Auditoria ATS</button>
                 <button class="btn-action secondary" onclick="runAI('summary')">📝 Gerar Resumo</button>
             </div>
+            
             <div id="ai-output" class="ai-result-area" style="display:none;"><span style="color: #94a3b8;">Aguardando...</span></div>
             <div style="display:flex; justify-content: flex-end;">
                 <button id="copy-ai-btn" class="btn-action secondary btn-sm" style="display:none" onclick="copyAIResult()">Copiar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL JSON MANAGER -->
+    <div id="json-modal">
+        <div class="json-box">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-bold text-[var(--primary-color)]"><i class="fas fa-database"></i> Gerenciador de Dados</h3>
+                <button onclick="document.getElementById('json-modal').style.display='none'" class="text-gray-500 hover:text-red-500"><i class="fas fa-times fa-lg"></i></button>
+            </div>
+            <p class="text-sm text-gray-600">Cole um JSON aqui para importar ou copie o conteúdo abaixo para backup.</p>
+            
+            <textarea id="json-io-area" class="w-full h-64 p-3 border rounded font-mono text-xs bg-gray-50"></textarea>
+            
+            <div class="flex flex-wrap gap-2 justify-end">
+                <button class="btn-action secondary" onclick="copyJsonToClipboard()"><i class="fas fa-copy"></i> Copiar</button>
+                <button class="btn-action secondary" onclick="pasteJsonFromClipboard()"><i class="fas fa-paste"></i> Colar</button>
+                <div style="width: 1px; background: #e2e8f0; margin: 0 5px;"></div>
+                <button class="btn-action secondary" onclick="document.getElementById('import-json-file').click()"><i class="fas fa-upload"></i> Carregar Arquivo</button>
+                <button class="btn-action secondary" onclick="exportData()"><i class="fas fa-download"></i> Baixar Arquivo</button>
+                <button class="btn-action ai" onclick="importFromJsonText()"><i class="fas fa-check"></i> Aplicar JSON</button>
+                
+                <!-- Inputs Ocultos -->
+                <input type="file" id="import-json-file" class="hidden" accept=".json" onchange="importData(this)">
             </div>
         </div>
     </div>
@@ -618,9 +687,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <button class="btn-action secondary btn-sm" onclick="exportData()" title="Backup Completo JSON"><i class="fas fa-download"></i> JSON</button>
-                <button class="btn-action secondary btn-sm" onclick="document.getElementById('import-json').click()" title="Restaurar Backup"><i class="fas fa-upload"></i> Restaurar</button>
-                <input type="file" id="import-json" class="hidden" accept=".json" onchange="importData(this)">
+                <button class="btn-action secondary btn-sm" onclick="openJsonManager()" title="Copiar/Colar/Baixar"><i class="fas fa-database"></i> Gerenciar Dados</button>
             </div>
         </div>
 
@@ -783,6 +850,7 @@
             }
             
             setupAutoSave();
+            setupFileListeners(); // Inicializa listeners de arquivo PDF/TXT
         });
 
         // --- AUTO-SAVE ---
@@ -815,8 +883,8 @@
             el.style.display = (el.style.display === 'none') ? (elementId === 'photo-area' ? 'block' : 'flex') : 'none';
         }
 
-        // --- BACKUP E RESTORE AVANÇADO ---
-        function exportData() {
+        // --- COLETA DE DADOS DO CURRICULO (CORE) ---
+        function collectResumeData() {
             const style = getComputedStyle(document.documentElement);
             
             // Coletar Experiências Estruturadas
@@ -843,7 +911,7 @@
             const skills = [];
             document.querySelectorAll('#editable-skills li .li-content').forEach(li => skills.push(li.innerHTML));
 
-            const data = {
+            return {
                 profile: {
                     name: document.getElementById('editable-name').innerText,
                     role: document.getElementById('editable-role').innerText,
@@ -868,7 +936,39 @@
                     lineHeight: style.getPropertyValue('--line-height').trim()
                 }
             };
-            
+        }
+
+        // --- JSON MANAGER (MODAL) ---
+        function openJsonManager() {
+            const data = collectResumeData();
+            document.getElementById('json-io-area').value = JSON.stringify(data, null, 2);
+            document.getElementById('json-modal').style.display = 'flex';
+        }
+
+        function copyJsonToClipboard() {
+            const text = document.getElementById('json-io-area').value;
+            navigator.clipboard.writeText(text).then(() => alert('JSON Copiado!'));
+        }
+
+        function pasteJsonFromClipboard() {
+            navigator.clipboard.readText().then(text => {
+                document.getElementById('json-io-area').value = text;
+            }).catch(err => alert('Erro ao colar: ' + err));
+        }
+
+        function importFromJsonText() {
+            try {
+                const jsonText = document.getElementById('json-io-area').value;
+                const data = JSON.parse(jsonText);
+                restoreData(data);
+                document.getElementById('json-modal').style.display = 'none';
+            } catch (e) {
+                alert('JSON Inválido: ' + e.message);
+            }
+        }
+
+        function exportData() {
+            const data = collectResumeData();
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
             const a = document.createElement('a');
             a.href = dataStr; a.download = "backup_curriculo_pro_wellington.json";
@@ -882,60 +982,121 @@
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    
-                    // Restaurar Perfil
-                    if(data.profile) {
-                        document.getElementById('editable-name').innerText = data.profile.name;
-                        document.getElementById('editable-role').innerText = data.profile.role;
-                        document.getElementById('editable-summary').innerHTML = data.profile.summary;
-                        document.getElementById('editable-contact').innerHTML = data.profile.contactHTML;
-                        if (data.profile.ageHTML) document.getElementById('editable-age').innerHTML = data.profile.ageHTML;
-                    }
-
-                    // Restaurar Estrutura Dinâmica
-                    if (data.structuredSections) {
-                        // Limpar atuais
-                        document.getElementById('editable-experience').innerHTML = '';
-                        document.getElementById('editable-education').innerHTML = '';
-                        document.getElementById('editable-skills').innerHTML = '';
-
-                        // Recriar usando as funções de adicionar
-                        // Inverter array de experiências para manter a ordem correta (prepend inverte)
-                        const exps = [...data.structuredSections.experiences].reverse();
-                        exps.forEach(exp => addExperienceBlock(exp));
-
-                        const edus = [...data.structuredSections.educations].reverse();
-                        edus.forEach(edu => addEducationBlock(edu));
-
-                        data.structuredSections.skills.forEach(skill => addSkillItem(skill));
-                    } else if (data.sections) {
-                        // Fallback para versão antiga (apenas HTML)
-                        document.getElementById('editable-experience').innerHTML = data.sections.experienceHTML;
-                        document.getElementById('editable-education').innerHTML = data.sections.educationHTML;
-                        document.getElementById('editable-skills').innerHTML = data.sections.skillsHTML;
-                        alert('Backup de versão antiga restaurado. Algumas funções de edição podem ser limitadas.');
-                    }
-
-                    // Restaurar Imagens
-                    if(data.images) {
-                        if(data.images.photo && data.images.photo.startsWith('data:')) document.getElementById('img-preview').src = data.images.photo;
-                        if(data.images.qr && data.images.qr.startsWith('data:')) document.getElementById('qr-preview').src = data.images.qr;
-                    }
-
-                    // Restaurar Tema e Layout
-                    if(data.theme) {
-                        setTheme(data.theme.primary, data.theme.accent);
-                        if(data.theme.fontSize) updateLayout('--base-font-size', parseFloat(data.theme.fontSize), 'px');
-                        if(data.theme.paddingTop) updateLayout('--paper-padding-top', parseFloat(data.theme.paddingTop), 'mm');
-                        if(data.theme.lineHeight) updateLayout('--line-height', data.theme.lineHeight);
-                    }
-                    alert('Curriculo Pro restaurado com sucesso!');
+                    // Preenche a área de texto do modal também
+                    document.getElementById('json-io-area').value = JSON.stringify(data, null, 2);
+                    restoreData(data);
                 } catch (error) { alert('Erro ao ler o arquivo JSON.'); console.error(error); }
             };
             reader.readAsText(file); input.value = ''; 
         }
 
-        // --- IA ---
+        function restoreData(data) {
+             // Restaurar Perfil
+             if(data.profile) {
+                document.getElementById('editable-name').innerText = data.profile.name;
+                document.getElementById('editable-role').innerText = data.profile.role;
+                document.getElementById('editable-summary').innerHTML = data.profile.summary;
+                document.getElementById('editable-contact').innerHTML = data.profile.contactHTML;
+                if (data.profile.ageHTML) document.getElementById('editable-age').innerHTML = data.profile.ageHTML;
+            }
+
+            // Restaurar Estrutura Dinâmica
+            if (data.structuredSections) {
+                // Limpar atuais
+                document.getElementById('editable-experience').innerHTML = '';
+                document.getElementById('editable-education').innerHTML = '';
+                document.getElementById('editable-skills').innerHTML = '';
+
+                // Recriar usando as funções de adicionar
+                // Inverter array de experiências para manter a ordem correta (prepend inverte)
+                const exps = [...data.structuredSections.experiences].reverse();
+                exps.forEach(exp => addExperienceBlock(exp));
+
+                const edus = [...data.structuredSections.educations].reverse();
+                edus.forEach(edu => addEducationBlock(edu));
+
+                data.structuredSections.skills.forEach(skill => addSkillItem(skill));
+            } else if (data.sections) {
+                // Fallback para versão antiga (apenas HTML)
+                document.getElementById('editable-experience').innerHTML = data.sections.experienceHTML;
+                document.getElementById('editable-education').innerHTML = data.sections.educationHTML;
+                document.getElementById('editable-skills').innerHTML = data.sections.skillsHTML;
+                alert('Backup de versão antiga restaurado. Algumas funções de edição podem ser limitadas.');
+            }
+
+            // Restaurar Imagens
+            if(data.images) {
+                if(data.images.photo && data.images.photo.startsWith('data:')) document.getElementById('img-preview').src = data.images.photo;
+                if(data.images.qr && data.images.qr.startsWith('data:')) document.getElementById('qr-preview').src = data.images.qr;
+            }
+
+            // Restaurar Tema e Layout
+            if(data.theme) {
+                setTheme(data.theme.primary, data.theme.accent);
+                if(data.theme.fontSize) updateLayout('--base-font-size', parseFloat(data.theme.fontSize), 'px');
+                if(data.theme.paddingTop) updateLayout('--paper-padding-top', parseFloat(data.theme.paddingTop), 'mm');
+                if(data.theme.lineHeight) updateLayout('--line-height', data.theme.lineHeight);
+            }
+            alert('Curriculo Pro restaurado com sucesso!');
+        }
+
+        // --- MANIPULAÇÃO DE PDF E TXT (EXTRAÇÃO) ---
+        let extractedContext = "";
+
+        function setupFileListeners() {
+            document.getElementById('context-files').addEventListener('change', async function(e) {
+                const files = e.target.files;
+                extractedContext = ""; // Resetar
+                const statusEl = document.getElementById('file-status');
+                statusEl.innerText = `Processando ${files.length} arquivo(s)...`;
+                
+                let processedCount = 0;
+
+                for (let file of files) {
+                    try {
+                        let text = "";
+                        if (file.type === "application/pdf") {
+                            text = await extractTextFromPDF(file);
+                        } else {
+                            // Tenta ler como texto (JSON, TXT, HTML)
+                            text = await readFileAsText(file);
+                        }
+                        extractedContext += `\n--- ARQUIVO: ${file.name} ---\n${text}\n`;
+                        processedCount++;
+                    } catch (err) {
+                        console.error("Erro ao ler arquivo:", file.name, err);
+                        extractedContext += `\n(Erro ao ler ${file.name})\n`;
+                    }
+                }
+                statusEl.innerText = `${processedCount} arquivo(s) lido(s) e prontos para contexto da IA.`;
+            });
+        }
+
+        function readFileAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = (e) => reject(e);
+                reader.readAsText(file);
+            });
+        }
+
+        async function extractTextFromPDF(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let fullText = "";
+            
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                fullText += pageText + "\n";
+            }
+            return fullText;
+        }
+
+
+        // --- IA (GEMINI) ---
         function toggleAI() { document.getElementById('ai-panel').classList.toggle('active'); checkKey(); }
         function checkKey() {
             const key = localStorage.getItem('gemini_api_key_resume');
@@ -946,6 +1107,7 @@
             const key = document.getElementById('gemini-key').value.trim();
             if (key) { localStorage.setItem('gemini_api_key_resume', key); alert('Chave salva!'); checkKey(); }
         }
+        
         async function runAI(mode) {
             const outputDiv = document.getElementById('ai-output');
             const key = localStorage.getItem('gemini_api_key_resume');
@@ -953,17 +1115,99 @@
             
             let prompt = "";
             let selection = window.getSelection().toString();
-            let context = document.getElementById('resume-paper').innerText;
+            let currentResumeText = document.getElementById('resume-paper').innerText;
+            const jobDesc = document.getElementById('job-description').value;
 
             outputDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inteligência trabalhando...'; outputDiv.style.display = 'block';
 
             if (mode === 'rewrite') {
                 if (!selection || selection.length < 5) { outputDiv.innerHTML = '<span style="color:red">Selecione o texto que deseja reescrever.</span>'; return; }
-                prompt = `Atue como um Recrutador Sênior. Reescreva o seguinte texto de currículo para ser mais executivo, direto e orientado a resultados (use verbos de ação): "${selection}"`;
-            } else if (mode === 'ats_check') {
-                prompt = `Analise este conteúdo de currículo para compatibilidade com sistemas ATS (Applicant Tracking Systems). Identifique 5 palavras-chave que podem estar faltando para um cargo de nível Pleno/Sênior e avalie a clareza. Texto: ${context.substring(0, 5000)}`;
-            } else if (mode === 'summary') {
-                prompt = `Com base nas experiências listadas, crie 3 opções de Resumo Profissional (Curto, Médio e Focado em Liderança). Texto base: ${context.substring(0, 5000)}`;
+                prompt = `Atue como um Especialista em Redação Corporativa.
+    Reescreva o texto abaixo para torná-lo mais PROFISSIONAL, EXECUTIVO e ORIENTADO A RESULTADOS.
+    - Use voz ativa.
+    - Substitua termos passivos por verbos de impacto (Liderou, Estruturou, Otimizou).
+    - Se houver números, destaque-os.
+    - Remova clichês.
+    Texto Original: "${selection}"`;
+            } 
+            else if (mode === 'ats_check') {
+                prompt = `Analise este conteúdo de currículo para compatibilidade com sistemas ATS. Identifique 5 palavras-chave faltando para a vaga descrita abaixo (se houver) ou geral. Texto Atual: ${currentResumeText.substring(0, 3000)}. Descrição Vaga: ${jobDesc}`;
+            } 
+            else if (mode === 'summary') {
+                prompt = `Crie 3 opções de Resumo Profissional de Alto Impacto para este perfil, focados na vaga descrita.
+    Vaga: ${jobDesc}
+    Contexto do Candidato: ${currentResumeText.substring(0, 3000)}
+    
+    Regras:
+    1. Opção 1: Foco em Liderança e Gestão.
+    2. Opção 2: Foco Técnico e Especialista.
+    3. Opção 3: Equilibrado (Híbrido).
+    Use o formato: [Cargo] com X anos de experiência em [Área]. Especialista em [Skill 1] e [Skill 2]. Histórico comprovado de [Conquista]. Focado em [Objetivo].`;
+            }
+            else if (mode === 'generate_full') {
+                 if (!extractedContext && !currentResumeText) {
+                    outputDiv.innerHTML = '<span style="color:red">Por favor, anexe arquivos ou tenha um currículo base preenchido.</span>'; return;
+                 }
+                 prompt = `
+                    ATUE COMO: Um Consultor de Carreira de Elite especializado em recolocação executiva e técnica.
+    
+    MISSÃO: Transformar os dados brutos do candidato em um Currículo de Alta Performance, otimizado para ATS (robôs) e irresistível para recrutadores humanos.
+    
+    DADOS DE ENTRADA:
+    - PERFIL DO CANDIDATO: 
+    ${extractedContext}
+    ${currentResumeText}
+    
+    - VAGA ALVO (Keywords Críticas):
+    ${jobDesc}
+    
+    DIRETRIZES DE CONTEÚDO (CRUCIAL):
+    1. RESUMO PROFISSIONAL (Elevator Pitch):
+       - Deve ter 3 a 4 linhas.
+       - Estrutura: [Cargo/Título] + [Anos de XP] + [Especialidade Chave] + [Conquista Mensurável/Diferencial] + [Soft Skill Estratégica].
+       - Tom: Seguro, direto e focado em valor.
+    
+    2. EXPERIÊNCIA PROFISSIONAL (Método STAR - Situação, Tarefa, Ação, Resultado):
+       - NÃO liste apenas deveres (ex: "fazia relatórios").
+       - DESCREVA IMPACTO (ex: "Elaborou relatórios técnicos que reduziram o tempo de decisão em 20%").
+       - Use "bullet points" inteligentes. Cada linha deve começar com um "Tag" em negrito (<b>Categoria:</b>).
+       - Categorias sugeridas: <b>Conquista:</b>, <b>Liderança:</b>, <b>Projeto:</b>, <b>Melhoria:</b>, <b>Gestão:</b>.
+    
+    3. SKILLS:
+       - Separe Hard Skills (Técnicas/Ferramentas) de Soft Skills (Comportamentais).
+       - Priorize as que aparecem na descrição da Vaga.
+    
+    FORMATO DE SAÍDA (JSON ESTRITO):
+    Retorne APENAS um objeto JSON válido com esta estrutura exata:
+    {
+        "profile": {
+            "role": "Nome do Cargo (Otimizado para a Vaga)",
+            "summary": "Texto do resumo..."
+        },
+        "structuredSections": {
+            "experiences": [
+                {
+                    "empresa": "Nome da Empresa",
+                    "periodo": "MM/AAAA - MM/AAAA",
+                    "cargo": "Cargo Ocupado",
+                    "linhas": [
+                        "<b>Conquista Principal:</b> Verbo de Ação + Contexto + Resultado Numérico (se houver).",
+                        "<b>Gestão & Liderança:</b> Descrição de escopo de equipe ou responsabilidade.",
+                        "<b>Tecnologia Aplicada:</b> Uso de ferramenta X para resolver problema Y."
+                    ]
+                }
+            ],
+            "educations": [
+                { "curso": "Nome do Curso", "instituicao": "Instituição | Status" }
+            ],
+            "skills": [
+                "<b>Hard Skills:</b> Lista de tecnologias/técnicas.",
+                "<b>Soft Skills:</b> Lista de competências comportamentais.",
+                "<b>Idiomas/Certificações:</b> Se houver."
+            ]
+        }
+    }
+                 `;
             }
 
             try {
@@ -972,9 +1216,40 @@
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
                 const data = await response.json();
-                outputDiv.innerHTML = marked.parse(data.candidates[0].content.parts[0].text);
-                document.getElementById('copy-ai-btn').style.display = 'block';
-            } catch (error) { outputDiv.innerHTML = `<span style="color:red">Erro: ${error.message}</span>`; }
+                const textResult = data.candidates[0].content.parts[0].text;
+                
+                if (mode === 'generate_full') {
+                    // Tenta extrair JSON do texto (caso venha com markdown ```json)
+                    let jsonStr = textResult.replace(/```json|```/g, '').trim();
+                    try {
+                        const jsonObj = JSON.parse(jsonStr);
+                        
+                        // Atualiza UI
+                        outputDiv.innerHTML = "<strong>Sucesso!</strong> Currículo gerado. Verifique os campos.";
+                        
+                        // Aplica
+                        if(jsonObj.profile.summary) document.getElementById('editable-summary').innerHTML = jsonObj.profile.summary;
+                        if(jsonObj.profile.role) document.getElementById('editable-role').innerText = jsonObj.profile.role;
+                        
+                        if(jsonObj.structuredSections.experiences) {
+                            document.getElementById('editable-experience').innerHTML = ''; // Limpa
+                            // Inverte para ficar cronológico na inserção (prepend)
+                            [...jsonObj.structuredSections.experiences].reverse().forEach(exp => addExperienceBlock(exp));
+                        }
+                         if(jsonObj.structuredSections.skills) {
+                            document.getElementById('editable-skills').innerHTML = '';
+                            jsonObj.structuredSections.skills.forEach(skill => addSkillItem(skill));
+                        }
+                        
+                    } catch (e) {
+                        outputDiv.innerHTML = "Erro ao processar JSON da IA: " + e.message + "<br><br>Texto Cru: " + textResult;
+                    }
+                } else {
+                    outputDiv.innerHTML = marked.parse(textResult);
+                    document.getElementById('copy-ai-btn').style.display = 'block';
+                }
+                
+            } catch (error) { outputDiv.innerHTML = `<span style="color:red">Erro na API: ${error.message}</span>`; }
         }
         function copyAIResult() { navigator.clipboard.writeText(document.getElementById('ai-output').innerText); alert('Copiado!'); }
 
