@@ -1,7 +1,8 @@
-<html lang="pt-br" style="--primary-color: #0f172a; --accent-color: #2563eb;"><head>
+<html lang="pt-br" style="--primary-color: #0f172a; --accent-color: #2563eb; --text-color: #333333; --base-font-size: 13px; --paper-padding-top: 10mm; --line-height: 1.4;">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Currículo Profissional - Wellington Silva</title>
+    <title>Currículo Profissional Pro - Wellington Silva</title>
 
     <!-- Fontes e Ícones -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,28 +17,34 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        /* --- CONFIGURAÇÕES GERAIS --- */
+        /* --- CONFIGURAÇÕES GERAIS E VARIÁVEIS --- */
         :root {
-            --primary-color: #0f172a; /* Azul Escuro Padrão */
-            --secondary-color: #334155;
-            --accent-color: #2563eb; /* Azul Destaque */
+            /* Cores Iniciais */
+            --primary-color: #0f172a; 
+            --accent-color: #2563eb;
             --text-color: #333333;
+            --ai-color: #8b5cf6;
+
+            /* Dimensões do Papel */
             --paper-width: 210mm;
             --paper-height: 297mm;
-            --ai-color: #8b5cf6; /* Roxo IA */
+
+            /* Variáveis de Layout Dinâmico (Controladas pelo Dock) */
+            --base-font-size: 13px;      
+            --paper-padding-top: 10mm;   
+            --line-height: 1.4;          
         }
 
         body {
-            background-color: #f0f2f5; /* Fundo mais claro para destacar o papel */
+            background-color: #e2e8f0; /* Fundo cinza para contraste */
             font-family: 'Roboto', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding-top: 20px;
-            /* Espaço compensatório para o dock fixo em mobile e desktop */
-            padding-bottom: 240px; 
+            padding-top: 30px;
+            padding-bottom: 350px; /* Espaço extra para o dock expandido */
         }
 
         /* --- FOLHA A4 PIXEL PERFECT --- */
@@ -45,17 +52,21 @@
             width: var(--paper-width);
             min-height: var(--paper-height); 
             background: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
             position: relative;
-            padding: 10mm 12mm; 
+            /* Padding Dinâmico configurável */
+            padding: var(--paper-padding-top) 15mm 15mm 15mm; 
             box-sizing: border-box;
             overflow: hidden; 
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            text-rendering: geometricPrecision;
+            color: var(--text-color);
+            
+            /* Aplica as variáveis de tipografia em cascata */
+            font-size: var(--base-font-size);
+            line-height: var(--line-height);
         }
 
-        /* Responsividade para Mobile */
+        /* Responsividade Mobile */
         @media (max-width: 768px) {
             #resume-paper {
                 width: 100%;
@@ -64,369 +75,240 @@
                 box-shadow: none;
                 padding: 5mm;
             }
-            body {
-                padding-top: 0;
-                background-color: white;
-            }
+            body { padding-top: 0; background-color: white; }
         }
 
-        /* Linha Guia de Fim da Página (Apenas Visual) */
+        /* Guias Visuais (Não saem na impressão) */
         #page-break-guide {
-            position: absolute;
-            top: 296mm; /* Um pouco antes do fim */
-            left: 0;
-            width: 100%;
-            height: 1px;
-            border-top: 2px dashed #ef4444;
-            opacity: 0.3;
-            pointer-events: none;
-            z-index: 50;
+            position: absolute; top: 296mm; left: 0; width: 100%; height: 1px;
+            border-top: 2px dashed #ef4444; opacity: 0.5; pointer-events: none; z-index: 50;
         }
         #page-break-guide::after {
-            content: "FIM DA PÁGINA A4";
-            position: absolute;
-            right: 10px;
-            top: -20px;
-            color: #ef4444;
-            font-size: 10px;
-            font-weight: bold;
+            content: "FIM DA PÁGINA 1"; position: absolute; right: 10px; top: -20px; color: #ef4444; font-size: 10px; font-weight: bold;
         }
 
-        /* Marca d'água de fundo */
         #watermark-layer {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: 50%;
-            opacity: 0.04;
-            pointer-events: none;
-            z-index: 0;
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-position: center; background-repeat: no-repeat;
+            background-size: 50%; opacity: 0.04; pointer-events: none; z-index: 0;
         }
 
-        /* --- TIPOGRAFIA E EDIÇÃO --- */
-        .editable {
-            outline: none;
-            border: 1px dashed transparent;
-            transition: all 0.2s;
-            cursor: text;
+        /* --- ESTILOS DE EDIÇÃO E INTERAÇÃO --- */
+        .editable { 
+            outline: none; 
+            border: 1px dashed transparent; 
+            transition: all 0.2s; 
+            cursor: text; 
+            min-height: 1em; /* Garante que campos vazios sejam clicáveis */
         }
+        .editable:hover { background-color: rgba(37, 99, 235, 0.05); border-radius: 4px; border-color: rgba(37, 99, 235, 0.2); }
+        .editable:focus { background-color: white; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); border-color: transparent; }
         
-        .editable:hover {
-            background-color: rgba(37, 99, 235, 0.05);
-            border-radius: 4px;
-        }
+        .tutorial-text { color: #64748b; font-style: italic; opacity: 0.8; }
 
-        .editable:focus {
-            background-color: white;
-            /* Foco sutil sem borda preta forte */
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); 
-        }
-
-        .tutorial-text {
-            color: #64748b;
-            font-style: italic;
-        }
-
-        /* Listas */
-        ul.custom-list {
-            list-style: none;
-            padding-left: 0;
-        }
-        ul.custom-list li {
-            position: relative;
-            padding-left: 1.0rem; 
-            margin-bottom: 0.2rem; 
-        }
-        ul.custom-list li::before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            color: var(--accent-color);
-            font-weight: bold;
-        }
-
-        /* --- COMPONENTES VISUAIS --- */
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between; 
-            /* REMOVIDA A LINHA PRETA */
-            /* border-bottom: 2px solid var(--primary-color); */
-            margin-top: 1.2rem; /* Ajustado margem */
-            margin-bottom: 0.8rem; /* Ajustado margem */
-            padding-bottom: 0; 
-        }
-        
-        .section-title-wrapper {
-            display: flex;
-            align-items: center;
-        }
-
+        /* --- TIPOGRAFIA ESCALÁVEL --- */
+        /* Títulos de Seção */
         .section-title {
-            font-size: 1.1rem; /* Aumentado ligeiramente para compensar a falta da linha */
-            font-weight: 800; /* Mais peso */
-            text-transform: uppercase;
-            color: var(--primary-color);
+            font-size: calc(var(--base-font-size) * 1.3); 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            color: var(--primary-color); 
             letter-spacing: 0.05em;
         }
-
-        .section-icon {
-            margin-right: 0.5rem;
-            color: var(--accent-color);
-            font-size: 1.1rem; 
+        /* Nome Principal */
+        #editable-name {
+            font-size: calc(var(--base-font-size) * 2.4);
+            line-height: 1.1;
         }
-
-        /* Botão Adicionar Item (+) */
-        .btn-add-item {
-            background: none;
-            border: 1px solid #cbd5e1;
-            color: #64748b;
-            width: 20px; 
-            height: 20px;
-            border-radius: 50%;
+        /* Cargo Principal */
+        #editable-role { font-size: calc(var(--base-font-size) * 1.3); }
+        
+        /* Listas Personalizadas */
+        ul.custom-list { list-style: none; padding-left: 0; width: 100%; }
+        /* Item de lista com flex para acomodar botão de excluir */
+        ul.custom-list li { 
+            position: relative; 
+            padding-left: 1.0rem; 
+            margin-bottom: 0.3rem; 
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-left: 8px;
+            align-items: flex-start;
+            justify-content: space-between;
         }
-        .btn-add-item:hover {
-            background: var(--accent-color);
-            color: white;
-            border-color: var(--accent-color);
+        /* Bolinha da lista */
+        ul.custom-list li::before {
+            content: "•"; position: absolute; left: 0; color: var(--accent-color); font-weight: bold; top: 0;
+        }
+        /* Área de texto do item de lista */
+        .li-content { flex: 1; margin-right: 10px; }
+
+        /* --- COMPONENTES VISUAIS E BOTÕES DE CONTROLE --- */
+        .section-header {
+            display: flex; align-items: center; justify-content: space-between; 
+            margin-top: calc(var(--base-font-size) * 1.5); 
+            margin-bottom: calc(var(--base-font-size) * 0.8); 
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(0,0,0,0.05); /* Linha sutil separadora */
+        }
+        .section-title-wrapper { display: flex; align-items: center; }
+        .section-icon { margin-right: 0.6rem; color: var(--accent-color); font-size: calc(var(--base-font-size) * 1.2); }
+
+        /* Botões de Adicionar/Remover (No papel) */
+        .control-btn {
+            width: 20px; height: 20px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; cursor: pointer; transition: all 0.2s;
+            opacity: 0; /* Escondido por padrão, aparece no hover do pai */
+            border: 1px solid #cbd5e1;
+            background: white; color: #64748b;
+            flex-shrink: 0;
+        }
+        
+        /* Mostrar botões ao passar o mouse na seção/bloco */
+        .section-header:hover .control-btn,
+        .experience-block:hover .control-btn,
+        .education-item:hover .control-btn,
+        ul.custom-list li:hover .control-btn { 
+            opacity: 1; 
+        }
+
+        .btn-add { color: #10b981; border-color: #10b981; }
+        .btn-add:hover { background: #10b981; color: white; }
+        
+        .btn-del { color: #ef4444; border-color: #ef4444; }
+        .btn-del:hover { background: #ef4444; color: white; }
+
+        /* Blocos de Conteúdo */
+        .experience-block { 
+            position: relative; 
+            margin-bottom: 1.2rem; 
+            padding-right: 25px; /* Espaço para botão de excluir bloco */
+            border-left: 2px solid transparent;
+            padding-left: 0;
+            transition: border 0.2s;
+        }
+        .experience-block:hover {
+            border-left: 2px solid #e2e8f0;
+            padding-left: 8px;
+        }
+        
+        /* Botão de excluir bloco inteiro */
+        .block-delete-btn {
+            position: absolute; right: 0; top: 0;
+        }
+
+        /* Botão de adicionar linha interna */
+        .inner-add-btn {
+            margin-left: 5px; opacity: 0.5;
+        }
+        .inner-add-btn:hover { opacity: 1; }
+
+        .education-item {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 0.8rem;
         }
 
         /* Foto */
         .photo-container {
-            width: 110px; 
-            height: 110px;
-            border-radius: 50%;
-            /* Borda removida ou suavizada */
-            border: 3px solid var(--primary-color);
-            overflow: hidden;
-            position: relative;
-            cursor: pointer;
-            background-color: #f1f5f9;
+            width: 110px; height: 110px; border-radius: 50%;
+            border: 3px solid var(--primary-color); overflow: hidden;
+            position: relative; cursor: pointer; background-color: #f1f5f9;
         }
-        .photo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .photo-container img { width: 100%; height: 100%; object-fit: cover; }
         .photo-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.2s;
+            position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;
         }
         .photo-container:hover .photo-overlay { opacity: 1; }
 
         /* QR Code */
         .qr-container {
-            width: 70px; 
-            height: 70px;
-            border: 1px dashed #cbd5e1; /* Borda mais suave */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            position: relative;
+            width: 70px; height: 70px; border: 1px dashed #cbd5e1;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative;
         }
         .qr-container:hover { border-color: var(--accent-color); }
 
-        /* --- PAINEL DE CONTROLE FIXO (DOCK) --- */
+        /* --- DOCK DE CONTROLE (UI) --- */
         #control-dock {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: white;
-            padding: 12px 15px;
-            border-top: 1px solid #e2e8f0;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: white; padding: 10px 20px; border-top: 1px solid #cbd5e1;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 1000;
+            display: flex; flex-direction: column; gap: 10px;
+            max-height: 280px; overflow-y: auto;
         }
+        .dock-row { display: flex; align-items: center; gap: 20px; justify-content: space-between; flex-wrap: wrap; }
+        .dock-group { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 4px 8px; border-radius: 6px; border: 1px solid #e2e8f0; }
+        .dock-label { font-size: 0.65rem; text-transform: uppercase; font-weight: 800; color: #475569; white-space: nowrap; }
 
-        .dock-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
-
-        .dock-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            font-weight: bold;
-            color: #64748b;
-            margin-bottom: 2px;
-            display: block;
-        }
+        /* Sliders */
+        .range-control { display: flex; align-items: center; gap: 5px; }
+        .range-input { width: 100px; height: 4px; accent-color: var(--primary-color); cursor: pointer; }
 
         /* Scroll de Cores */
-        .color-scroll-container {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding-bottom: 6px;
-            max-width: 100%;
-            scrollbar-width: thin;
-        }
-        .color-scroll-container::-webkit-scrollbar { height: 4px; }
-        .color-scroll-container::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        .color-scroll-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; max-width: 400px; scrollbar-width: thin; align-items: center; }
+        .color-group-label { font-size: 0.65rem; font-weight: 900; color: #94a3b8; margin-right: 2px; margin-left: 8px; writing-mode: vertical-lr; text-orientation: mixed; transform: rotate(180deg); white-space: nowrap; }
+        .color-dot { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); flex-shrink: 0; position: relative; }
+        .color-dot-dual { background: linear-gradient(135deg, var(--c-prim) 50%, var(--c-sec) 50%); }
+        .color-dot:hover { transform: scale(1.2); z-index: 10; border-color: #cbd5e1; }
 
-        .color-group-label {
-            font-size: 0.65rem;
-            font-weight: 900;
-            color: #94a3b8;
-            margin-right: 4px;
-            writing-mode: vertical-lr;
-            text-orientation: mixed;
-            transform: rotate(180deg);
-            white-space: nowrap;
+        /* Color Picker Nativo */
+        .custom-color-input {
+            width: 24px; height: 24px; padding: 0; border: none; border-radius: 50%; overflow: hidden; cursor: pointer;
         }
-
-        /* Bolinhas de Cor Bicolor */
-        .color-dot {
-            width: 28px; height: 28px; border-radius: 50%;
-            cursor: pointer; border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
-            flex-shrink: 0;
-            position: relative;
-            background-size: 100% 100%;
-        }
-        /* Efeito visual para mostrar as duas cores */
-        .color-dot-dual {
-            background: linear-gradient(135deg, var(--c-prim) 50%, var(--c-sec) 50%);
-        }
-        
-        .color-dot:hover { transform: scale(1.15); z-index: 10; }
-        .color-dot::after {
-            content: attr(title);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1e293b;
-            color: white;
-            font-size: 0.6rem;
-            padding: 2px 6px;
-            border-radius: 4px;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s;
-            margin-bottom: 4px;
-        }
-        .color-dot:hover::after { opacity: 1; }
+        .custom-color-input::-webkit-color-swatch-wrapper { padding: 0; }
+        .custom-color-input::-webkit-color-swatch { border: none; border-radius: 50%; }
 
         .btn-action {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-            white-space: nowrap;
+            background: var(--primary-color); color: white; border: none;
+            padding: 8px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .btn-action:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-action:hover { opacity: 0.95; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(0,0,0,0.15); }
         .btn-action.secondary { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
         .btn-action.secondary:hover { background: #e2e8f0; }
         .btn-action.accent { background: #dc2626; } 
-        
-        .btn-action.ai { 
-            background: linear-gradient(135deg, var(--ai-color), #4b7bec); 
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .btn-action.ai:hover { box-shadow: 0 0 10px var(--ai-color); }
+        .btn-action.ai { background: linear-gradient(135deg, var(--ai-color), #4b7bec); border: 1px solid rgba(255,255,255,0.2); color: white; }
+        .btn-action.ai:hover { box-shadow: 0 0 12px var(--ai-color); }
 
-        /* --- PAINEL IA (Overlay Ajustado) --- */
+        /* --- PAINEL IA --- */
         #ai-panel {
-            position: fixed;
-            /* Ajustado para ficar acima do dock fixo (altura estimada do dock ~200px) */
-            bottom: 210px; 
-            left: 50%;
-            transform: translateX(-50%);
-            width: 95%;
-            max-width: 600px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 -5px 30px rgba(0,0,0,0.2);
-            border: 1px solid #e2e8f0;
-            padding: 15px;
-            z-index: 1001; /* Maior que o dock */
-            display: none;
-            flex-direction: column;
-            gap: 12px;
+            position: fixed; bottom: 300px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 650px; background: white; border-radius: 12px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.2); border: 1px solid #e2e8f0;
+            padding: 20px; z-index: 1001; display: none; flex-direction: column; gap: 15px;
         }
-        
-        #ai-panel.active { display: flex; animation: slideUp 0.3s ease-out; }
-
-        @keyframes slideUp {
-            from { transform: translate(-50%, 20px); opacity: 0; }
-            to { transform: translate(-50%, 0); opacity: 1; }
-        }
-
-        .ai-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
-        .ai-title { font-weight: bold; color: var(--ai-color); font-size: 1rem; display: flex; align-items: center; gap: 8px; }
-        
+        #ai-panel.active { display: flex; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { transform: translate(-50%, 40px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        .ai-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
+        .ai-title { font-weight: bold; color: var(--ai-color); font-size: 1.1rem; display: flex; align-items: center; gap: 10px; }
         .ai-input-group { display: flex; gap: 10px; }
-        .ai-input { flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; }
-        .ai-result-area { 
-            background: #f8fafc; 
-            padding: 10px; 
-            border-radius: 8px; 
-            border: 1px dashed #cbd5e1; 
-            max-height: 180px; 
-            overflow-y: auto; 
-            font-size: 0.85rem; 
-            line-height: 1.5;
-            color: #334155;
-        }
-        
+        .ai-input { flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; }
+        .ai-result-area { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; max-height: 200px; overflow-y: auto; font-size: 0.9rem; line-height: 1.6; color: #334155; }
         .ai-result-area strong { color: var(--ai-color); }
         .ai-result-area ul { padding-left: 20px; list-style-type: disc; }
 
         @media print {
             body { background: white; padding: 0; display: block; }
-            #control-dock, #ai-panel, #page-break-guide, .btn-add-item { display: none !important; }
-            #resume-paper { box-shadow: none; margin: 0; width: 100%; height: auto; }
+            #control-dock, #ai-panel, #page-break-guide, .btn-add-item, .control-btn, .block-delete-btn, .inner-add-btn { display: none !important; }
+            #resume-paper { box-shadow: none; margin: 0; width: 100%; height: auto; padding: var(--paper-padding-top) 15mm 15mm 15mm !important; }
             .editable { border: none !important; }
+            .experience-block { border-left: none !important; padding-left: 0 !important; }
         }
     </style>
-<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.mb-0{margin-bottom:0px}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-4{margin-bottom:1rem}.ml-auto{margin-left:auto}.mt-1{margin-top:0.25rem}.mt-3{margin-top:0.75rem}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-full{height:100%}.w-full{width:100%}.flex-shrink-0{flex-shrink:0}.flex-grow{flex-grow:1}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.overflow-x-auto{overflow-x:auto}.object-cover{object-fit:cover}.p-1{padding:0.25rem}.pb-2{padding-bottom:0.5rem}.text-center{text-align:center}.text-justify{text-align:justify}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[0\.5rem\]{font-size:0.5rem}.text-base{font-size:1rem;line-height:1.5rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.tracking-tight{letter-spacing:-0.025em}.tracking-wide{letter-spacing:0.025em}.text-\[var\(--accent-color\)\]{color:var(--accent-color)}.text-\[var\(--primary-color\)\]{color:var(--primary-color)}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}@media (min-width: 768px){.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:flex-row{flex-direction:row}.md\:justify-start{justify-content:flex-start}.md\:text-left{text-align:left}}</style></head>
+</head>
 <body>
 
     <!-- PAPEL A4 DO CURRÍCULO -->
     <div id="resume-paper">
         <div id="watermark-layer"></div>
-        <div id="page-break-guide" title="O conteúdo abaixo desta linha pode ser cortado"></div>
+        <div id="page-break-guide" title="O conteúdo abaixo desta linha pode ser cortado na impressão"></div>
 
         <!-- Cabeçalho -->
-        <header class="flex flex-col md:flex-row items-center gap-4 mb-4">
+        <header class="flex flex-col md:flex-row items-center gap-6 mb-6">
             
             <!-- Foto -->
             <div id="photo-area" class="flex-shrink-0" style="display: none;">
-                <div class="photo-container" onclick="document.getElementById('upload-photo').click()">
-                    <img id="img-preview" src="https://via.placeholder.com/150?text=Sua+Foto" alt="Foto de Perfil">
+                <div class="photo-container" onclick="document.getElementById('upload-photo').click()" title="Clique para alterar foto">
+                    <img id="img-preview" src="https://via.placeholder.com/150?text=Foto" alt="Foto de Perfil">
                     <div class="photo-overlay"><i class="fas fa-camera text-white text-2xl"></i></div>
                 </div>
                 <input type="file" id="upload-photo" class="hidden" accept="image/*">
@@ -434,10 +316,10 @@
 
             <!-- Dados Pessoais -->
             <div class="flex-grow text-center md:text-left w-full">
-                <div id="editable-name" class="editable text-2xl font-black text-[var(--primary-color)] uppercase tracking-tight mb-1" contenteditable="true">[SEU NOME COMPLETO]</div>
-                <div id="editable-role" class="editable text-base font-semibold text-[var(--accent-color)] mb-2" contenteditable="true">[SEU CARGO OU OBJETIVO]</div>
+                <div id="editable-name" class="editable font-black text-[var(--primary-color)] uppercase tracking-tight mb-2" contenteditable="true">[SEU NOME COMPLETO]</div>
+                <div id="editable-role" class="editable font-semibold text-[var(--accent-color)] mb-3" contenteditable="true">[SEU CARGO OU OBJETIVO]</div>
                 
-                <div id="editable-contact" class="flex flex-wrap justify-center md:justify-start gap-3 text-xs text-gray-600 mt-1">
+                <div id="editable-contact" class="flex flex-wrap justify-center md:justify-start gap-4 text-[var(--text-color)] opacity-90 mt-1" style="font-size: 0.9em;">
                     <div class="flex items-center gap-1 editable" contenteditable="true">
                         <i class="fas fa-map-marker-alt text-[var(--accent-color)]"></i> [Cidade, Estado]
                     </div>
@@ -459,7 +341,7 @@
 
             <!-- QR Code -->
             <div id="qr-area" class="flex-shrink-0 flex flex-col items-center" style="display: none;">
-                <div class="qr-container" onclick="document.getElementById('upload-qr').click()">
+                <div class="qr-container" onclick="document.getElementById('upload-qr').click()" title="Clique para alterar QR Code">
                     <img id="qr-preview" src="https://via.placeholder.com/80?text=QR+Code" class="w-full h-full object-cover p-1">
                 </div>
                 <input type="file" id="upload-qr" class="hidden" accept="image/*">
@@ -477,8 +359,8 @@
                         <h2 class="section-title">Resumo Profissional</h2>
                     </div>
                 </div>
-                <div id="editable-summary" class="editable text-gray-700 text-xs leading-relaxed text-justify tutorial-text" contenteditable="true">
-                    [Este é o seu "Elevator Pitch". Escreva um parágrafo de 3 a 5 linhas resumindo sua experiência. Responda a três perguntas: 1. Quem é você? (Ex: Técnico em Segurança com 5 anos de experiência). 2. O que você faz de melhor? (Ex: Especialista em NRs e redução de custos). 3. Qual seu diferencial? (Ex: Foco em análise de dados e liderança de equipes). Evite clichês como "proativo" e foque em resultados.]
+                <div id="editable-summary" class="editable text-[var(--text-color)] leading-relaxed text-justify tutorial-text" contenteditable="true">
+                    [Aqui vem sua descrição. Escreva um parágrafo de 3 a 5 linhas resumindo sua experiência. Responda a três perguntas: 1. Quem é você? (Ex: Técnico em Segurança com 5 anos de experiência). 2. O que você faz de melhor? (Ex: Especialista em NRs e redução de custos). 3. Qual seu diferencial? (Ex: Foco em análise de dados e liderança de equipes). Evite clichês como "proativo" e foque em resultados.]
                 </div>
             </section>
 
@@ -489,58 +371,64 @@
                         <i class="fas fa-briefcase section-icon"></i>
                         <h2 class="section-title">Experiência Profissional</h2>
                     </div>
-                    <button class="btn-add-item" onclick="addExperienceBlock()" title="Adicionar Nova Experiência"><i class="fas fa-plus"></i></button>
+                    <button class="control-btn btn-add opacity-100" onclick="addExperienceBlock()" title="Adicionar Nova Empresa"><i class="fas fa-plus"></i></button>
                 </div>
                 
                 <div id="editable-experience" class="space-y-4">
-                    <!-- Item 1: Template de Experiência -->
+                    <!-- Item 1: Template de Experiência com Tutoriais -->
                     <div class="experience-block">
+                        <button class="control-btn btn-del block-delete-btn" onclick="this.closest('.experience-block').remove()" title="Excluir Experiência"><i class="fas fa-trash"></i></button>
                         <div class="flex justify-between items-baseline mb-0">
-                            <h3 class="editable font-bold text-gray-800 text-sm" contenteditable="true">[NOME DA EMPRESA MAIS RECENTE]</h3>
-                            <span class="editable text-xs font-semibold text-gray-500" contenteditable="true">[Mês/Ano] – [Atual/Fim]</span>
+                            <h3 class="editable font-bold text-[var(--text-color)]" style="font-size: 1.1em;" contenteditable="true">[NOME DA EMPRESA MAIS RECENTE]</h3>
+                            <span class="editable font-semibold text-gray-500" style="font-size: 0.9em;" contenteditable="true">[Mês/Ano] – [Atual/Fim]</span>
                         </div>
-                        <div class="editable text-xs font-bold text-[var(--accent-color)] mb-1" contenteditable="true">[Seu Cargo nesta empresa]</div>
-                        
-                        <ul class="custom-list text-xs text-gray-700 leading-snug tutorial-text">
-                            <li class="editable" contenteditable="true"><strong>Conquista Principal:</strong> [Comece com um verbo de ação (Liderei, Implementei, Reduzi). Descreva o que você fez e qual foi o resultado numérico. Ex: Reduzi em 30% os acidentes.]</li>
-                            <li class="editable" contenteditable="true"><strong>Responsabilidade Chave:</strong> [Descreva uma função vital que você exercia. Ex: Gestão de equipe de 10 pessoas ou Interface com órgãos reguladores.]</li>
-                            <li class="editable" contenteditable="true"><strong>Ferramenta/Técnica:</strong> [Mencione uma tecnologia ou metodologia específica que usou. Ex: Implementação de sistema Kanban para gestão de resíduos.]</li>
+                        <div class="flex items-center">
+                            <div class="editable font-bold text-[var(--accent-color)] mb-1" style="font-size: 1em;" contenteditable="true">[Seu Cargo nesta empresa]</div>
+                            <button class="control-btn btn-add inner-add-btn" onclick="addInnerLine(this.closest('.experience-block').querySelector('ul'))" title="Adicionar Linha"><i class="fas fa-plus"></i></button>
+                        </div>
+                        <ul class="custom-list text-[var(--text-color)] leading-snug tutorial-text">
+                            <li>
+                                <div class="li-content editable" contenteditable="true"><strong>Conquista Principal:</strong> [Comece com um verbo de ação (Liderei, Implementei, Reduzi). Descreva o que você fez e qual foi o resultado numérico. Ex: Reduzi em 30% os acidentes.]</div>
+                                <button class="control-btn btn-del" onclick="this.parentElement.remove()" title="Excluir Linha"><i class="fas fa-times"></i></button>
+                            </li>
+                            <li>
+                                <div class="li-content editable" contenteditable="true"><strong>Responsabilidade Chave:</strong> [Descreva uma função vital que você exercia. Ex: Gestão de equipe de 10 pessoas ou Interface com órgãos reguladores.]</div>
+                                <button class="control-btn btn-del" onclick="this.parentElement.remove()" title="Excluir Linha"><i class="fas fa-times"></i></button>
+                            </li>
+                            <li>
+                                <div class="li-content editable" contenteditable="true"><strong>Ferramenta/Técnica:</strong> [Mencione uma tecnologia ou metodologia específica que usou. Ex: Implementação de sistema Kanban para gestão de resíduos.]</div>
+                                <button class="control-btn btn-del" onclick="this.parentElement.remove()" title="Excluir Linha"><i class="fas fa-times"></i></button>
+                            </li>
                         </ul>
                     </div>
 
-                    <!-- Item 2: Template de Experiência -->
+                    <!-- Item 2: Template de Experiência com Tutoriais -->
                     <div class="experience-block">
+                        <button class="control-btn btn-del block-delete-btn" onclick="this.closest('.experience-block').remove()" title="Excluir Experiência"><i class="fas fa-trash"></i></button>
                         <div class="flex justify-between items-baseline mb-0">
-                            <h3 class="editable font-bold text-gray-800 text-sm" contenteditable="true">[NOME DA EMPRESA ANTERIOR]</h3>
-                            <span class="editable text-xs font-semibold text-gray-500" contenteditable="true">[Mês/Ano] – [Mês/Ano]</span>
+                            <h3 class="editable font-bold text-[var(--text-color)]" style="font-size: 1.1em;" contenteditable="true">[NOME DA EMPRESA ANTERIOR]</h3>
+                            <span class="editable font-semibold text-gray-500" style="font-size: 0.9em;" contenteditable="true">[Mês/Ano] – [Mês/Ano]</span>
                         </div>
-                        <div class="editable text-xs font-bold text-[var(--accent-color)] mb-1" contenteditable="true">[Seu Cargo Anterior]</div>
-                        
-                        <ul class="custom-list text-xs text-gray-700 leading-snug tutorial-text">
-                            <li class="editable" contenteditable="true"><strong>Projeto Relevante:</strong> [Descreva um projeto específico que teve início, meio e fim. Destaque sua contribuição pessoal.]</li>
-                            <li class="editable" contenteditable="true"><strong>Rotina Operacional:</strong> [Liste suas responsabilidades diárias mais importantes, usando palavras-chave da sua área (ex: auditoria, fiscalização, relatórios).]</li>
-                        </ul>
-                    </div>
-
-                    <!-- Item 3: Template de Experiência -->
-                    <div class="experience-block">
-                        <div class="flex justify-between items-baseline mb-0">
-                            <h3 class="editable font-bold text-gray-800 text-sm" contenteditable="true">[NOME DA EMPRESA ANTERIOR]</h3>
-                            <span class="editable text-xs font-semibold text-gray-500" contenteditable="true">[Mês/Ano] – [Mês/Ano]</span>
+                        <div class="flex items-center">
+                            <div class="editable font-bold text-[var(--accent-color)] mb-1" style="font-size: 1em;" contenteditable="true">[Seu Cargo Anterior]</div>
+                            <button class="control-btn btn-add inner-add-btn" onclick="addInnerLine(this.closest('.experience-block').querySelector('ul'))" title="Adicionar Linha"><i class="fas fa-plus"></i></button>
                         </div>
-                        <div class="editable text-xs font-bold text-[var(--accent-color)] mb-1" contenteditable="true">[Seu Cargo Inicial/Anterior]</div>
-                        
-                        <ul class="custom-list text-xs text-gray-700 leading-snug tutorial-text">
-                            <li class="editable" contenteditable="true"><strong>Conquista/Projeto:</strong> [Descreva um resultado relevante ou projeto entregue.]</li>
-                            <li class="editable" contenteditable="true"><strong>Atividade Chave:</strong> [Descreva sua principal responsabilidade diária.]</li>
-                            <li class="editable" contenteditable="true"><strong>Ferramenta/Habilidade:</strong> [Cite uma competência técnica utilizada.]</li>
+                        <ul class="custom-list text-[var(--text-color)] leading-snug tutorial-text">
+                            <li>
+                                <div class="li-content editable" contenteditable="true"><strong>Projeto Relevante:</strong> [Descreva um projeto específico que teve início, meio e fim. Destaque sua contribuição pessoal.]</div>
+                                <button class="control-btn btn-del" onclick="this.parentElement.remove()" title="Excluir Linha"><i class="fas fa-times"></i></button>
+                            </li>
+                            <li>
+                                <div class="li-content editable" contenteditable="true"><strong>Rotina Operacional:</strong> [Liste suas responsabilidades diárias mais importantes, usando palavras-chave da sua área (ex: auditoria, fiscalização, relatórios).]</div>
+                                <button class="control-btn btn-del" onclick="this.parentElement.remove()" title="Excluir Linha"><i class="fas fa-times"></i></button>
+                            </li>
                         </ul>
                     </div>
                 </div>
             </section>
 
             <!-- Grid 2 Colunas -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
                 
                 <!-- Formação -->
                 <section>
@@ -549,20 +437,29 @@
                             <i class="fas fa-graduation-cap section-icon"></i>
                             <h2 class="section-title">Formação Acadêmica</h2>
                         </div>
-                        <button class="btn-add-item" onclick="addEducationBlock()" title="Adicionar Nova Formação"><i class="fas fa-plus"></i></button>
+                        <button class="control-btn btn-add opacity-100" onclick="addEducationBlock()" title="Adicionar Nova Formação"><i class="fas fa-plus"></i></button>
                     </div>
-                    <div id="editable-education" class="space-y-2 text-xs">
-                        <div class="editable" contenteditable="true">
-                            <p class="font-bold text-gray-800">[Nome do Curso / Graduação]</p>
-                            <p class="text-gray-600">[Nome da Instituição] | [Status: Cursando ou Concluído em Ano]</p>
+                    <div id="editable-education" class="space-y-3">
+                        <div class="education-item">
+                            <div style="flex-grow: 1;">
+                                <p class="font-bold text-[var(--text-color)] editable" contenteditable="true">[Nome do Curso / Graduação]</p>
+                                <p class="text-gray-600 editable" contenteditable="true">[Nome da Instituição] | [Status: Cursando ou Concluído em Ano]</p>
+                            </div>
+                            <button class="control-btn btn-del" onclick="this.parentElement.remove()" title="Excluir"><i class="fas fa-trash"></i></button>
                         </div>
-                        <div class="editable" contenteditable="true">
-                            <p class="font-bold text-gray-800">[Curso Técnico ou Especialização]</p>
-                            <p class="text-gray-600">[Nome da Instituição] | [Concluído]</p>
+                        <div class="education-item">
+                            <div style="flex-grow: 1;">
+                                <p class="font-bold text-[var(--text-color)] editable" contenteditable="true">[Curso Técnico ou Especialização]</p>
+                                <p class="text-gray-600 editable" contenteditable="true">[Nome da Instituição] | [Concluído]</p>
+                            </div>
+                            <button class="control-btn btn-del" onclick="this.parentElement.remove()" title="Excluir"><i class="fas fa-trash"></i></button>
                         </div>
-                         <div class="editable" contenteditable="true">
-                            <p class="font-bold text-gray-800">[Outra Formação Relevante]</p>
-                            <p class="text-gray-600">[Nome da Instituição] | [Concluído]</p>
+                        <div class="education-item">
+                            <div style="flex-grow: 1;">
+                                <p class="font-bold text-[var(--text-color)] editable" contenteditable="true">[Outra Formação Relevante]</p>
+                                <p class="text-gray-600 editable" contenteditable="true">[Nome da Instituição] | [Concluído]</p>
+                            </div>
+                            <button class="control-btn btn-del" onclick="this.parentElement.remove()" title="Excluir"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 </section>
@@ -574,13 +471,25 @@
                             <i class="fas fa-tools section-icon"></i>
                             <h2 class="section-title">Competências</h2>
                         </div>
-                        <button class="btn-add-item" onclick="addSkillItem()" title="Adicionar Nova Competência"><i class="fas fa-plus"></i></button>
+                        <button class="control-btn btn-add opacity-100" onclick="addSkillItem()" title="Adicionar Nova Competência"><i class="fas fa-plus"></i></button>
                     </div>
-                    <ul id="editable-skills" class="custom-list text-xs text-gray-700 leading-snug tutorial-text">
-                        <li class="editable" contenteditable="true"><strong>Hard Skills:</strong> [Liste softwares, ferramentas técnicas, legislações (NRs, ISO) que você domina.]</li>
-                        <li class="editable" contenteditable="true"><strong>Dados &amp; Tech:</strong> [Cite ferramentas de análise como Excel Avançado, Power BI, Dashboards.]</li>
-                        <li class="editable" contenteditable="true"><strong>Soft Skills:</strong> [Liste habilidades comportamentais reais: Liderança, Comunicação, Resolução de Conflitos.]</li>
-                        <li class="editable" contenteditable="true"><strong>Idiomas:</strong> [Apenas se for Intermediário ou superior. Ex: Inglês Técnico.]</li>
+                    <ul id="editable-skills" class="custom-list text-[var(--text-color)] leading-snug tutorial-text">
+                        <li>
+                            <div class="li-content editable" contenteditable="true"><strong>Hard Skills:</strong> [Liste softwares, ferramentas técnicas, legislações (NRs, ISO) que você domina.]</div>
+                            <button class="control-btn btn-del" onclick="this.parentElement.remove()" title="Excluir"><i class="fas fa-times"></i></button>
+                        </li>
+                        <li>
+                            <div class="li-content editable" contenteditable="true"><strong>Dados &amp; Tech:</strong> [Cite ferramentas de análise como Excel Avançado, Power BI, Dashboards.]</div>
+                            <button class="control-btn btn-del" onclick="this.parentElement.remove()" title="Excluir"><i class="fas fa-times"></i></button>
+                        </li>
+                        <li>
+                            <div class="li-content editable" contenteditable="true"><strong>Soft Skills:</strong> [Liste habilidades comportamentais reais: Liderança, Comunicação, Resolução de Conflitos.]</div>
+                            <button class="control-btn btn-del" onclick="this.parentElement.remove()" title="Excluir"><i class="fas fa-times"></i></button>
+                        </li>
+                        <li>
+                            <div class="li-content editable" contenteditable="true"><strong>Idiomas:</strong> [Apenas se for Intermediário ou superior. Ex: Inglês Técnico.]</div>
+                            <button class="control-btn btn-del" onclick="this.parentElement.remove()" title="Excluir"><i class="fas fa-times"></i></button>
+                        </li>
                     </ul>
                 </section>
             </div>
@@ -596,16 +505,16 @@
         <div id="api-key-section">
             <label style="font-size: 0.8rem; font-weight: bold; color: #64748b;">Chave Google Gemini API:</label>
             <div class="ai-input-group">
-                <input type="password" id="gemini-key" class="ai-input" placeholder="Cole sua chave aqui (começa com AIzaSy...)">
+                <input type="password" id="gemini-key" class="ai-input" placeholder="Cole sua chave aqui (AIzaSy...)">
                 <button class="btn-action secondary" onclick="saveKey()">Salvar</button>
             </div>
-            <p style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px;">A chave fica salva no navegador. <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--accent-color);">Gerar Chave</a></p>
+            <p style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px;">A chave é salva localmente. <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--accent-color);">Gerar Chave</a></p>
         </div>
         <div id="ai-actions" style="display:none; flex-direction: column; gap: 10px;">
             <div class="flex gap-2 overflow-x-auto pb-2">
                 <button class="btn-action ai" onclick="runAI('rewrite')">✨ Reescrever</button>
-                <button class="btn-action secondary" onclick="runAI('ats_check')">🛡️ Auditoria</button>
-                <button class="btn-action secondary" onclick="runAI('summary')">📝 Resumo</button>
+                <button class="btn-action secondary" onclick="runAI('ats_check')">🛡️ Auditoria ATS</button>
+                <button class="btn-action secondary" onclick="runAI('summary')">📝 Gerar Resumo</button>
             </div>
             <div id="ai-output" class="ai-result-area" style="display:none;"><span style="color: #94a3b8;">Aguardando...</span></div>
             <div style="display:flex; justify-content: flex-end;">
@@ -614,55 +523,108 @@
         </div>
     </div>
 
-    <!-- DOCK DE CONTROLE FIXO -->
+    <!-- DOCK DE CONTROLE -->
     <div id="control-dock">
+        
+        <!-- Linha 1: Controles de Layout (Fonte, Margem, Espaçamento) -->
+        <div class="dock-row" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+            <div class="dock-group">
+                <span class="dock-label"><i class="fas fa-arrows-alt-v"></i> Topo</span>
+                <input type="range" class="range-input" min="5" max="40" value="10" oninput="updateLayout('--paper-padding-top', this.value, 'mm')" title="Margem Superior">
+            </div>
+            <div class="dock-group">
+                <span class="dock-label"><i class="fas fa-text-height"></i> Fonte</span>
+                <input type="range" class="range-input" min="10" max="16" value="13" oninput="updateLayout('--base-font-size', this.value, 'px')" title="Tamanho da Fonte">
+            </div>
+            <div class="dock-group">
+                <span class="dock-label"><i class="fas fa-align-justify"></i> Altura</span>
+                <input type="range" class="range-input" min="1.0" max="1.8" step="0.1" value="1.4" oninput="updateLayout('--line-height', this.value)" title="Espaçamento entre linhas">
+            </div>
+        </div>
+
+        <!-- Linha 2: Cores Completas + Custom RGB -->
         <div class="dock-row">
             <div class="flex items-center gap-2" style="flex: 1; min-width: 0;">
-                <span class="dock-label">ESTILOS PROFISSIONAIS:</span>
+                <span class="dock-label">CORES:</span>
                 <div class="color-scroll-container">
-                    <div class="flex items-center gap-2">
-                        <!-- BANCOS & FINANÇAS -->
-                        <div class="color-group-label" style="writing-mode: initial; margin-right: 5px; color: #EB0029; transform: none;">BANCOS</div>
+                    <div class="flex items-center gap-1">
+                        <!-- Custom RGB -->
+                        <div class="dock-group" style="margin-right: 10px; padding: 2px 6px;">
+                            <span style="font-size: 0.6rem; color: #64748b;">PERSONALIZAR:</span>
+                            <input type="color" class="custom-color-input" title="Cor Primária (Textos Escuros)" onchange="setCustomPrimary(this.value)">
+                            <input type="color" class="custom-color-input" title="Cor Destaque (Detalhes)" onchange="setCustomAccent(this.value)">
+                        </div>
+
+                        <!-- CLÁSSICOS & NEUTROS (Novos) -->
+                        <div class="color-group-label" style="color: #2d3436;">CLÁSSICO</div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #000000;" onclick="setTheme('#000000', '#000000')" title="Total Black"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #2d3436; --c-sec: #636e72;" onclick="setTheme('#2d3436', '#636e72')" title="Cinza Ardósia"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #4a4a4a; --c-sec: #9b9b9b;" onclick="setTheme('#4a4a4a', '#9b9b9b')" title="Cinza Médio"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #1c1c1c; --c-sec: #800020;" onclick="setTheme('#1c1c1c', '#800020')" title="Preto/Vinho"></div>
+
+                        <!-- BANCOS (Existentes) -->
+                        <div class="color-group-label" style="color: #EB0029;">BANCOS</div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #EB0029; --c-sec: #cccccc;" onclick="setTheme('#EB0029', '#2d2d2d')" title="Vermelho Santander"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #F39200; --c-sec: #005A9C;" onclick="setTheme('#005A9C', '#F39200')" title="Laranja Itaú"></div>
-                        <div class="color-dot color-dot-dual" style="--c-prim: #cc0000; --c-sec: #e6e6e6;" onclick="setTheme('#cc0000', '#666666')" title="Bradesco (Vermelho/Cinza)"></div>
-                        <div class="color-dot color-dot-dual" style="--c-prim: #6a1b9a; --c-sec: #8e24aa;" onclick="setTheme('#4a148c', '#ab47bc')" title="Roxo Tech (Nubank)"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #cc0000; --c-sec: #e6e6e6;" onclick="setTheme('#cc0000', '#666666')" title="Bradesco"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #6a1b9a; --c-sec: #8e24aa;" onclick="setTheme('#4a148c', '#ab47bc')" title="Nubank"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #003666; --c-sec: #f5f5f5;" onclick="setTheme('#003666', '#aab7b8')" title="Safra (Azul/Prata)"></div>
 
-                        <div class="color-group-label" style="writing-mode: initial; margin: 0 5px; color: #004B8D; transform: none;">INDÚSTRIA</div>
-                        <!-- INDÚSTRIA PESADA -->
-                        <div class="color-dot color-dot-dual" style="--c-prim: #e67e22; --c-sec: #003366;" onclick="setTheme('#003366', '#e67e22')" title="Laranja/Azul (Braskem)"></div>
-                        <div class="color-dot color-dot-dual" style="--c-prim: #007680; --c-sec: #D99800;" onclick="setTheme('#007680', '#D99800')" title="Verde/Ouro (Vale)"></div>
-                        <div class="color-dot color-dot-dual" style="--c-prim: #004B8D; --c-sec: #808080;" onclick="setTheme('#004B8D', '#546E7A')" title="Azul/Cinza (Gerdau/Engenharia)"></div>
-                        <div class="color-dot color-dot-dual" style="--c-prim: #003B26; --c-sec: #009640;" onclick="setTheme('#003B26', '#009640')" title="Verde Industrial (Bracell)"></div>
-                        <div class="color-dot color-dot-dual" style="--c-prim: #008542; --c-sec: #FFC72C;" onclick="setTheme('#008542', '#FFC72C')" title="Verde Energia (Petrobras)"></div>
+                        <!-- CORPORATIVO (Expandido) -->
+                        <div class="color-group-label" style="color: #0c2461;">CORPORATE</div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #0c2461; --c-sec: #4a69bd;" onclick="setTheme('#0c2461', '#4a69bd')" title="Marinho Profundo"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #192a56; --c-sec: #c23616;" onclick="setTheme('#192a56', '#c23616')" title="Harvard (Azul/Carmim)"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #2f3640; --c-sec: #0097e6;" onclick="setTheme('#2f3640', '#0097e6')" title="Grafite/Tech Blue"></div>
 
-                        <div class="color-group-label" style="writing-mode: initial; margin: 0 5px; color: #000000; transform: none;">BÁSICO+PRETO</div>
-                        <!-- PRETO + BÁSICOS -->
+                        <!-- INDÚSTRIA (Existentes + Novos) -->
+                        <div class="color-group-label" style="color: #004B8D;">INDÚSTRIA</div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #e67e22; --c-sec: #003366;" onclick="setTheme('#003366', '#e67e22')" title="Braskem"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #007680; --c-sec: #D99800;" onclick="setTheme('#007680', '#D99800')" title="Vale"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #004B8D; --c-sec: #808080;" onclick="setTheme('#004B8D', '#546E7A')" title="Gerdau"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #003B26; --c-sec: #009640;" onclick="setTheme('#003B26', '#009640')" title="Bracell"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #008542; --c-sec: #FFC72C;" onclick="setTheme('#008542', '#FFC72C')" title="Petrobras"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #594f4f; --c-sec: #f0a07c;" onclick="setTheme('#594f4f', '#f0a07c')" title="Cimento/Tijolo"></div>
+
+                        <!-- PRETO + ... (BÁSICO Expandido) -->
+                        <div class="color-group-label" style="color: #000000;">CONTRASTE</div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #2563eb;" onclick="setTheme('#000000', '#2563eb')" title="Preto com Azul"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #10b981;" onclick="setTheme('#000000', '#10b981')" title="Preto com Verde"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #ef4444;" onclick="setTheme('#000000', '#ef4444')" title="Preto com Vermelho"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #eab308;" onclick="setTheme('#000000', '#eab308')" title="Preto com Amarelo"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #d63031;" onclick="setTheme('#000000', '#d63031')" title="Preto/Sangue"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #0984e3;" onclick="setTheme('#000000', '#0984e3')" title="Preto/Elétrico"></div>
 
-                        <div class="color-group-label" style="writing-mode: initial; margin: 0 5px; color: #4b5563; transform: none;">CINZA CHUMBO</div>
-                        <!-- CINZA CHUMBO + DESTAQUES -->
+                        <!-- TENDÊNCIA (Novos) -->
+                        <div class="color-group-label" style="color: #6c5ce7;">MODERNO</div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #2d3436; --c-sec: #00b894;" onclick="setTheme('#2d3436', '#00b894')" title="Mint"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #2d3436; --c-sec: #fd79a8;" onclick="setTheme('#2d3436', '#fd79a8')" title="Rosa Pop"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #2d3436; --c-sec: #6c5ce7;" onclick="setTheme('#2d3436', '#6c5ce7')" title="Roxo Digital"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #2d3436; --c-sec: #e17055;" onclick="setTheme('#2d3436', '#e17055')" title="Terracota"></div>
+
+                        <!-- CINZA (Existentes + Novos) -->
+                        <div class="color-group-label" style="color: #4b5563;">CINZA</div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #374151; --c-sec: #3b82f6;" onclick="setTheme('#374151', '#3b82f6')" title="Chumbo com Azul"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #374151; --c-sec: #10b981;" onclick="setTheme('#374151', '#10b981')" title="Chumbo com Verde"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #374151; --c-sec: #f97316;" onclick="setTheme('#374151', '#f97316')" title="Chumbo com Laranja"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #576574; --c-sec: #8395a7;" onclick="setTheme('#576574', '#8395a7')" title="Monocromático Frio"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #353b48; --c-sec: #718093;" onclick="setTheme('#353b48', '#718093')" title="Nordic Gray"></div>
                         
-                        <div class="color-group-label" style="writing-mode: initial; margin: 0 5px; color: #1e3a8a; transform: none;">AZUL ROYAL</div>
-                        <!-- AZUL ROYAL + DESTAQUES -->
-                        <div class="color-dot color-dot-dual" style="--c-prim: #1e3a8a; --c-sec: #93c5fd;" onclick="setTheme('#1e3a8a', '#60a5fa')" title="Azul Royal Ton sur Ton"></div>
-                        <div class="color-dot color-dot-dual" style="--c-prim: #1e3a8a; --c-sec: #fbbf24;" onclick="setTheme('#1e3a8a', '#fbbf24')" title="Azul Royal com Dourado"></div>
+                        <!-- ROYAL (Existentes) -->
+                        <div class="color-group-label" style="color: #1e3a8a;">ROYAL</div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #1e3a8a; --c-sec: #93c5fd;" onclick="setTheme('#1e3a8a', '#60a5fa')" title="Royal Ton"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #1e3a8a; --c-sec: #fbbf24;" onclick="setTheme('#1e3a8a', '#fbbf24')" title="Royal/Gold"></div>
+                        <div class="color-dot color-dot-dual" style="--c-prim: #4834d4; --c-sec: #be2edd;" onclick="setTheme('#4834d4', '#be2edd')" title="Blurple"></div>
                     </div>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <button class="btn-action secondary btn-sm" onclick="exportData()" title="Salvar Backup Completo"><i class="fas fa-download"></i> JSON</button>
+                <button class="btn-action secondary btn-sm" onclick="exportData()" title="Backup Completo JSON"><i class="fas fa-download"></i> JSON</button>
                 <button class="btn-action secondary btn-sm" onclick="document.getElementById('import-json').click()" title="Restaurar Backup"><i class="fas fa-upload"></i> Restaurar</button>
                 <input type="file" id="import-json" class="hidden" accept=".json" onchange="importData(this)">
             </div>
         </div>
 
+        <!-- Linha 3: Ações Globais -->
         <div class="dock-row">
             <div class="flex items-center gap-2">
                 <button class="btn-action ai" onclick="toggleAI()"><i class="fas fa-robot"></i> IA</button>
@@ -679,103 +641,167 @@
 
     <!-- SCRIPTS -->
     <script>
-        // --- CALCULAR IDADE AUTOMATICAMENTE ---
-        function calculateAge(birthDateString) {
-            // Formato esperado: YYYY-MM-DD ou DD/MM/YYYY
-            let birthDate;
-            if (birthDateString.includes('/')) {
-                const parts = birthDateString.split('/');
-                // DD/MM/YYYY -> YYYY-MM-DD
-                birthDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-            } else {
-                birthDate = new Date(birthDateString);
-            }
-            
-            const today = new Date();
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const m = today.getMonth() - birthDate.getMonth();
-            
-            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-            return age;
+        // --- FUNÇÕES DE LAYOUT ---
+        function updateLayout(variable, value, unit='') {
+            document.documentElement.style.setProperty(variable, value + unit);
         }
 
-        // Executa o cálculo ao carregar (mas permite edição depois)
-        window.addEventListener('load', () => {
-            const birthDateStr = "21/03/1997"; // Data fornecida pelo usuário
-            const age = calculateAge(birthDateStr);
-            const ageElement = document.getElementById('auto-age');
-            // Só define se o elemento estiver vazio ou com o texto padrão
-            if (ageElement && (ageElement.textContent === "Calculando idade..." || ageElement.textContent === "")) {
-                ageElement.textContent = `${age} Anos`;
-            }
-        });
+        // --- FUNÇÕES DE COR ---
+        function setTheme(primary, accent) {
+            document.documentElement.style.setProperty('--primary-color', primary);
+            document.documentElement.style.setProperty('--accent-color', accent);
+        }
+        function setCustomPrimary(color) {
+            document.documentElement.style.setProperty('--primary-color', color);
+        }
+        function setCustomAccent(color) {
+            document.documentElement.style.setProperty('--accent-color', color);
+        }
 
-        // --- ADICIONAR ITENS DINAMICAMENTE (NOVO) ---
-        function addExperienceBlock() {
+        // --- FUNÇÕES DE ADICIONAR/REMOVER ITENS ---
+        // 1. Remover qualquer elemento passado
+        function removeElement(btn) {
+            if(confirm('Tem certeza que deseja excluir este item?')) {
+                const element = btn.parentElement; // O pai direto do botão é o elemento a ser removido (na maioria dos casos)
+                // Ajuste para casos onde o botão está dentro de um container flex e queremos remover o container maior
+                if (element.classList.contains('section-header') || element.classList.contains('flex')) {
+                     // Caso especial: se for um LI da lista, o pai é o LI
+                     if(element.tagName === 'LI') {
+                         element.remove();
+                     } else {
+                         // Se for bloco de experiência, o botão está dentro dele
+                         btn.closest('.experience-block, .education-item').remove();
+                     }
+                } else {
+                    element.remove();
+                }
+            }
+        }
+
+        // 2. Adicionar Bloco de Experiência
+        function addExperienceBlock(data = null) {
             const container = document.getElementById('editable-experience');
             const newBlock = document.createElement('div');
             newBlock.className = 'experience-block';
+            
+            // Dados padrão ou passados (para restore)
+            const empresa = data ? data.empresa : '[NOVA EMPRESA]';
+            const dataStr = data ? data.periodo : 'Mês/Ano – Atual';
+            const cargo = data ? data.cargo : '[Seu Cargo]';
+            
+            // HTML Interno
             newBlock.innerHTML = `
+                <button class="control-btn btn-del block-delete-btn" onclick="this.closest('.experience-block').remove()" title="Excluir Experiência"><i class="fas fa-trash"></i></button>
                 <div class="flex justify-between items-baseline mb-0">
-                    <h3 class="editable font-bold text-gray-800 text-sm" contenteditable="true">Nova Empresa</h3>
-                    <span class="editable text-xs font-semibold text-gray-500" contenteditable="true">Mês/Ano – Mês/Ano</span>
+                    <h3 class="editable font-bold text-[var(--text-color)]" style="font-size: 1.1em;" contenteditable="true">${empresa}</h3>
+                    <span class="editable font-semibold text-gray-500" style="font-size: 0.9em;" contenteditable="true">${dataStr}</span>
                 </div>
-                <div class="editable text-xs font-bold text-[var(--accent-color)] mb-1" contenteditable="true">Seu Cargo</div>
-                <ul class="custom-list text-xs text-gray-700 leading-snug tutorial-text">
-                    <li class="editable" contenteditable="true"><strong>Conquista:</strong> Descreva sua principal realização aqui.</li>
-                    <li class="editable" contenteditable="true">Responsabilidade diária relevante.</li>
+                <div class="flex items-center">
+                    <div class="editable font-bold text-[var(--accent-color)] mb-1" style="font-size: 1em;" contenteditable="true">${cargo}</div>
+                    <button class="control-btn btn-add inner-add-btn" onclick="addInnerLine(this.closest('.experience-block').querySelector('ul'))" title="Adicionar Linha"><i class="fas fa-plus"></i></button>
+                </div>
+                <ul class="custom-list text-[var(--text-color)] leading-snug tutorial-text">
+                    <!-- Linhas internas serão adicionadas aqui -->
                 </ul>
             `;
-            container.prepend(newBlock); // Adiciona no topo
+            container.prepend(newBlock);
+
+            // Adicionar linhas padrão se não houver dados, ou restaurar dados
+            const ul = newBlock.querySelector('ul');
+            if(data && data.linhas) {
+                data.linhas.forEach(texto => addInnerLine(ul, texto));
+            } else {
+                addInnerLine(ul, "<strong>Conquista:</strong> Descreva sua principal realização aqui.");
+                addInnerLine(ul, "Responsabilidade diária relevante.");
+            }
         }
 
-        function addEducationBlock() {
+        // 3. Adicionar Linha Interna (Experiência)
+        function addInnerLine(ul, text = "Nova responsabilidade ou conquista.") {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div class="li-content editable" contenteditable="true">${text}</div>
+                <button class="control-btn btn-del" onclick="this.parentElement.remove()" title="Excluir Linha"><i class="fas fa-times"></i></button>
+            `;
+            ul.appendChild(li);
+        }
+
+        // 4. Adicionar Educação
+        function addEducationBlock(data = null) {
             const container = document.getElementById('editable-education');
             const newBlock = document.createElement('div');
-            newBlock.className = 'editable';
-            newBlock.contentEditable = "true";
+            newBlock.className = 'education-item';
+            
+            const curso = data ? data.curso : '[Novo Curso / Formação]';
+            const inst = data ? data.instituicao : 'Instituição | Status';
+
             newBlock.innerHTML = `
-                <p class="font-bold text-gray-800">Novo Curso / Formação</p>
-                <p class="text-gray-600">Instituição | Status</p>
+                <div style="flex-grow: 1;">
+                    <p class="font-bold text-[var(--text-color)] editable" contenteditable="true">${curso}</p>
+                    <p class="text-gray-600 editable" contenteditable="true">${inst}</p>
+                </div>
+                <button class="control-btn btn-del" onclick="this.parentElement.remove()" title="Excluir"><i class="fas fa-trash"></i></button>
             `;
             container.prepend(newBlock);
         }
 
-        function addSkillItem() {
+        // 5. Adicionar Competência
+        function addSkillItem(text = null) {
             const container = document.getElementById('editable-skills');
             const newItem = document.createElement('li');
-            newItem.className = 'editable';
-            newItem.contentEditable = "true";
-            newItem.innerHTML = `<strong>Nova Habilidade:</strong> Descrição breve.`;
+            const content = text || `<strong>Nova Habilidade:</strong> Descrição.`;
+            
+            newItem.innerHTML = `
+                <div class="li-content editable" contenteditable="true">${content}</div>
+                <button class="control-btn btn-del" onclick="this.parentElement.remove()" title="Excluir"><i class="fas fa-times"></i></button>
+            `;
             container.appendChild(newItem);
         }
 
+        // --- IDADE AUTOMÁTICA ---
+        window.addEventListener('load', () => {
+            const birthDateStr = "21/03/1997";
+            const today = new Date();
+            let birthDate;
+            if (birthDateStr.includes('/')) {
+                const parts = birthDateStr.split('/');
+                birthDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+            } else birthDate = new Date(birthDateStr);
+            
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+            
+            const ageElement = document.getElementById('auto-age');
+            if (ageElement && (ageElement.textContent === "Calculando idade..." || ageElement.textContent === "")) {
+                ageElement.textContent = `${age} Anos`;
+            }
+            
+            // Só executa se o container estiver vazio (o que não deve acontecer mais com o HTML estático, mas serve de fallback)
+            if(document.getElementById('editable-experience').children.length === 0) {
+               // Fallback: não faz nada pois o HTML já vem preenchido
+            }
+            
+            setupAutoSave();
+        });
+
         // --- AUTO-SAVE ---
         function setupAutoSave() {
-            const editables = document.querySelectorAll('[contenteditable="true"]');
-            editables.forEach(el => {
-                const id = el.id || el.parentElement.className + '-child'; 
-                if(id) {
-                    const saved = localStorage.getItem('autosave_' + id);
-                    if(saved && saved.trim().length > 0) el.innerHTML = saved;
-                    el.addEventListener('input', () => localStorage.setItem('autosave_' + id, el.innerHTML));
+            // Monitorar mudanças em qualquer editável
+            document.body.addEventListener('input', function(e) {
+                if(e.target.classList.contains('editable')) {
+                    // Lógica de salvamento granular poderia ser aqui, mas vamos focar no backup JSON manual para estrutura complexa
                 }
             });
         }
-        window.addEventListener('load', setupAutoSave);
 
-        // --- SETUP IMAGENS ---
-        function handleImageUpload(inputId, imgId, bgMode = false) {
+        // --- IMAGENS ---
+        function handleImageUpload(inputId, imgId) {
             document.getElementById(inputId).addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = function(ev) {
-                        if (bgMode) document.getElementById('watermark-layer').style.backgroundImage = `url('${ev.target.result}')`;
-                        else document.getElementById(imgId).src = ev.target.result;
-                    }
+                    reader.onload = function(ev) { document.getElementById(imgId).src = ev.target.result; }
                     reader.readAsDataURL(file);
                 }
             });
@@ -783,44 +809,69 @@
         handleImageUpload('upload-photo', 'img-preview');
         handleImageUpload('upload-qr', 'qr-preview');
 
-        // --- TEMA E TOGGLE ---
-        function setTheme(primary, accent) {
-            document.documentElement.style.setProperty('--primary-color', primary);
-            document.documentElement.style.setProperty('--accent-color', accent);
-        }
+        // --- UTILITÁRIOS VISUAIS ---
         function toggleElement(elementId) {
             const el = document.getElementById(elementId);
             el.style.display = (el.style.display === 'none') ? (elementId === 'photo-area' ? 'block' : 'flex') : 'none';
         }
 
-        // --- BACKUP ---
+        // --- BACKUP E RESTORE AVANÇADO ---
         function exportData() {
+            const style = getComputedStyle(document.documentElement);
+            
+            // Coletar Experiências Estruturadas
+            const experiences = [];
+            document.querySelectorAll('.experience-block').forEach(block => {
+                const lines = [];
+                block.querySelectorAll('ul li .li-content').forEach(li => lines.push(li.innerHTML));
+                experiences.push({
+                    empresa: block.querySelector('h3').innerText,
+                    periodo: block.querySelector('span').innerText,
+                    cargo: block.querySelector('div.text-\\[var\\(--accent-color\\)\\]').innerText,
+                    linhas: lines
+                });
+            });
+
+            // Coletar Formação
+            const educations = [];
+            document.querySelectorAll('.education-item').forEach(item => {
+                const ps = item.querySelectorAll('p');
+                educations.push({ curso: ps[0].innerText, instituicao: ps[1].innerText });
+            });
+
+            // Coletar Skills
+            const skills = [];
+            document.querySelectorAll('#editable-skills li .li-content').forEach(li => skills.push(li.innerHTML));
+
             const data = {
                 profile: {
                     name: document.getElementById('editable-name').innerText,
                     role: document.getElementById('editable-role').innerText,
                     summary: document.getElementById('editable-summary').innerHTML, 
                     contactHTML: document.getElementById('editable-contact').innerHTML,
-                    // Salva a idade editada manualmente
                     ageHTML: document.getElementById('editable-age').innerHTML 
                 },
-                sections: {
-                    experienceHTML: document.getElementById('editable-experience').innerHTML,
-                    educationHTML: document.getElementById('editable-education').innerHTML,
-                    skillsHTML: document.getElementById('editable-skills').innerHTML
+                structuredSections: {
+                    experiences: experiences, // Salva ordem invertida (como no DOM)
+                    educations: educations,
+                    skills: skills
                 },
                 images: {
                     photo: document.getElementById('img-preview').src,
                     qr: document.getElementById('qr-preview').src
                 },
                 theme: {
-                    primary: getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(),
-                    accent: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim()
+                    primary: style.getPropertyValue('--primary-color').trim(),
+                    accent: style.getPropertyValue('--accent-color').trim(),
+                    fontSize: style.getPropertyValue('--base-font-size').trim(),
+                    paddingTop: style.getPropertyValue('--paper-padding-top').trim(),
+                    lineHeight: style.getPropertyValue('--line-height').trim()
                 }
             };
+            
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
             const a = document.createElement('a');
-            a.href = dataStr; a.download = "backup_curriculo_wellington.json";
+            a.href = dataStr; a.download = "backup_curriculo_pro_wellington.json";
             document.body.appendChild(a); a.click(); a.remove();
         }
 
@@ -831,28 +882,55 @@
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
+                    
+                    // Restaurar Perfil
                     if(data.profile) {
                         document.getElementById('editable-name').innerText = data.profile.name;
                         document.getElementById('editable-role').innerText = data.profile.role;
                         document.getElementById('editable-summary').innerHTML = data.profile.summary;
                         document.getElementById('editable-contact').innerHTML = data.profile.contactHTML;
-                        // Restaura a idade se existir no backup
-                        if (data.profile.ageHTML) {
-                            document.getElementById('editable-age').innerHTML = data.profile.ageHTML;
-                        }
+                        if (data.profile.ageHTML) document.getElementById('editable-age').innerHTML = data.profile.ageHTML;
                     }
-                    if(data.sections) {
+
+                    // Restaurar Estrutura Dinâmica
+                    if (data.structuredSections) {
+                        // Limpar atuais
+                        document.getElementById('editable-experience').innerHTML = '';
+                        document.getElementById('editable-education').innerHTML = '';
+                        document.getElementById('editable-skills').innerHTML = '';
+
+                        // Recriar usando as funções de adicionar
+                        // Inverter array de experiências para manter a ordem correta (prepend inverte)
+                        const exps = [...data.structuredSections.experiences].reverse();
+                        exps.forEach(exp => addExperienceBlock(exp));
+
+                        const edus = [...data.structuredSections.educations].reverse();
+                        edus.forEach(edu => addEducationBlock(edu));
+
+                        data.structuredSections.skills.forEach(skill => addSkillItem(skill));
+                    } else if (data.sections) {
+                        // Fallback para versão antiga (apenas HTML)
                         document.getElementById('editable-experience').innerHTML = data.sections.experienceHTML;
                         document.getElementById('editable-education').innerHTML = data.sections.educationHTML;
                         document.getElementById('editable-skills').innerHTML = data.sections.skillsHTML;
+                        alert('Backup de versão antiga restaurado. Algumas funções de edição podem ser limitadas.');
                     }
+
+                    // Restaurar Imagens
                     if(data.images) {
                         if(data.images.photo && data.images.photo.startsWith('data:')) document.getElementById('img-preview').src = data.images.photo;
                         if(data.images.qr && data.images.qr.startsWith('data:')) document.getElementById('qr-preview').src = data.images.qr;
                     }
-                    if(data.theme) setTheme(data.theme.primary, data.theme.accent);
-                    alert('Dados restaurados com sucesso! Verifique se a formatação está correta.');
-                } catch (error) { alert('Erro ao ler o arquivo JSON.'); }
+
+                    // Restaurar Tema e Layout
+                    if(data.theme) {
+                        setTheme(data.theme.primary, data.theme.accent);
+                        if(data.theme.fontSize) updateLayout('--base-font-size', parseFloat(data.theme.fontSize), 'px');
+                        if(data.theme.paddingTop) updateLayout('--paper-padding-top', parseFloat(data.theme.paddingTop), 'mm');
+                        if(data.theme.lineHeight) updateLayout('--line-height', data.theme.lineHeight);
+                    }
+                    alert('Curriculo Pro restaurado com sucesso!');
+                } catch (error) { alert('Erro ao ler o arquivo JSON.'); console.error(error); }
             };
             reader.readAsText(file); input.value = ''; 
         }
@@ -872,18 +950,20 @@
             const outputDiv = document.getElementById('ai-output');
             const key = localStorage.getItem('gemini_api_key_resume');
             if (!key) { alert('Chave API não configurada!'); return; }
-            outputDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Pensando...'; outputDiv.style.display = 'block';
+            
             let prompt = "";
-            let context = document.getElementById('resume-paper').innerText;
             let selection = window.getSelection().toString();
+            let context = document.getElementById('resume-paper').innerText;
+
+            outputDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inteligência trabalhando...'; outputDiv.style.display = 'block';
 
             if (mode === 'rewrite') {
-                if (!selection || selection.length < 5) { outputDiv.innerHTML = '<span style="color:red">Selecione um texto para reescrever.</span>'; return; }
-                prompt = `Aja como um Recrutador Sênior. Reescreva este texto de currículo para ser mais executivo, direto e focado em resultados (Use verbos de ação): "${selection}"`;
+                if (!selection || selection.length < 5) { outputDiv.innerHTML = '<span style="color:red">Selecione o texto que deseja reescrever.</span>'; return; }
+                prompt = `Atue como um Recrutador Sênior. Reescreva o seguinte texto de currículo para ser mais executivo, direto e orientado a resultados (use verbos de ação): "${selection}"`;
             } else if (mode === 'ats_check') {
-                prompt = `Analise este currículo para sistemas ATS. Liste 3 palavras-chave faltantes para Segurança do Trabalho e dê uma nota de 0 a 10 para clareza: ${context}`;
+                prompt = `Analise este conteúdo de currículo para compatibilidade com sistemas ATS (Applicant Tracking Systems). Identifique 5 palavras-chave que podem estar faltando para um cargo de nível Pleno/Sênior e avalie a clareza. Texto: ${context.substring(0, 5000)}`;
             } else if (mode === 'summary') {
-                prompt = `Escreva um resumo profissional de 3 linhas focado em Segurança do Trabalho e Liderança com base nisto: ${context}`;
+                prompt = `Com base nas experiências listadas, crie 3 opções de Resumo Profissional (Curto, Médio e Focado em Liderança). Texto base: ${context.substring(0, 5000)}`;
             }
 
             try {
@@ -898,25 +978,32 @@
         }
         function copyAIResult() { navigator.clipboard.writeText(document.getElementById('ai-output').innerText); alert('Copiado!'); }
 
-        // --- GERAÇÃO PDF CORRIGIDA ---
+        // --- GERAÇÃO PDF ---
         window.jsPDF = window.jspdf.jsPDF;
         async function generatePDF(isComplete) {
             const paper = document.getElementById('resume-paper');
             const btn = event.target;
             const originalText = btn.innerHTML;
             
+            // Elementos para ocultar durante o PDF
+            const elementsToHide = [
+                document.getElementById('page-break-guide'),
+                ...document.querySelectorAll('.control-btn'), // Botões de adicionar/remover
+                ...document.querySelectorAll('.block-delete-btn'),
+                ...document.querySelectorAll('.inner-add-btn')
+            ];
+            
             const photoEl = document.getElementById('photo-area');
             const qrEl = document.getElementById('qr-area');
-            const guideEl = document.getElementById('page-break-guide');
-            const addBtns = document.querySelectorAll('.btn-add-item'); // Esconde botões de adicionar
-            
             const originalPhotoDisplay = photoEl.style.display;
             const originalQrDisplay = qrEl.style.display;
 
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
-            guideEl.style.display = 'none';
-            addBtns.forEach(b => b.style.display = 'none');
+            
+            // Oculta UI de controle
+            elementsToHide.forEach(el => el.style.display = 'none');
 
+            // Configuração ATS (remove imagens)
             if (!isComplete) { photoEl.style.display = 'none'; qrEl.style.display = 'none'; }
 
             try {
@@ -927,28 +1014,21 @@
                 });
 
                 const imgData = canvas.toDataURL('image/jpeg', 0.95);
-                const pdf = new jsPDF({
-                    orientation: 'portrait',
-                    unit: 'mm',
-                    format: 'a4'
-                });
-
+                const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
                 const pdfWidth = pdf.internal.pageSize.getWidth(); 
                 const imgProps = pdf.getImageProperties(imgData);
                 const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
                 pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-                
-                const fileName = isComplete ? 'Curriculo_Completo.pdf' : 'Curriculo_ATS.pdf';
+                const fileName = isComplete ? 'Curriculo_Wellington_Completo.pdf' : 'Curriculo_Wellington_ATS.pdf';
                 pdf.save(fileName);
 
             } catch (error) {
-                console.error(error);
-                alert('Erro ao gerar PDF. Tente imprimir pelo navegador (Ctrl+P).');
+                console.error(error); alert('Erro ao gerar PDF.');
             } finally {
+                // Restaura UI
+                elementsToHide.forEach(el => el.style.display = '');
                 if (!isComplete) { photoEl.style.display = originalPhotoDisplay; qrEl.style.display = originalQrDisplay; }
-                guideEl.style.display = 'block';
-                addBtns.forEach(b => b.style.display = 'flex'); // Mostra botões de volta
                 btn.innerHTML = originalText;
             }
         }
@@ -958,9 +1038,9 @@
             const blob = new Blob([htmlContent], {type: 'text/html'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'meu_projeto_curriculo.html';
+            a.download = 'meu_projeto_curriculo_pro.html';
             a.click();
         }
     </script>
-
-</body></html>
+</body>
+</html>
