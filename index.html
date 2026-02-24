@@ -1,4 +1,4 @@
-<html lang="pt-br" style="--primary-color: #0f172a; --accent-color: #2563eb; --text-color: #333333; --base-font-size: 13px; --paper-padding-top: 10mm; --line-height: 1.4;">
+<html lang="pt-br" style="--primary-color: #0f172a; --accent-color: #2563eb; --text-color: #333333; --base-font-size: 13px; --paper-padding-top: 10mm; --line-height: 1.4; --block-spacing: 1.2rem;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,7 +39,8 @@
             /* Variáveis de Layout Dinâmico (Controladas pelo Dock) */
             --base-font-size: 13px;      
             --paper-padding-top: 10mm;   
-            --line-height: 1.4;          
+            --line-height: 1.4;    
+            --block-spacing: 1.2rem; /* Nova variável para ajuste de quebra */      
         }
 
         body {
@@ -85,13 +86,13 @@
             body { padding-top: 0; background-color: white; }
         }
 
-        /* Guias Visuais (Não saem na impressão) */
-        #page-break-guide {
-            position: absolute; top: 296mm; left: 0; width: 100%; height: 1px;
-            border-top: 2px dashed #ef4444; opacity: 0.5; pointer-events: none; z-index: 50;
+        /* Guias Visuais Dinâmicas de Quebra de Página */
+        .page-break-line {
+            position: absolute; left: 0; width: 100%; height: 1px;
+            border-top: 2px dashed #ef4444; opacity: 0.8; pointer-events: none; z-index: 50;
         }
-        #page-break-guide::after {
-            content: "FIM DA PÁGINA 1"; position: absolute; right: 10px; top: -20px; color: #ef4444; font-size: 10px; font-weight: bold;
+        .page-break-line::after {
+            content: attr(data-content); position: absolute; right: 10px; top: -20px; color: #ef4444; font-size: 10px; font-weight: bold; background: white; padding: 0 4px;
         }
 
         #watermark-layer {
@@ -151,7 +152,7 @@
         /* --- COMPONENTES VISUAIS E BOTÕES DE CONTROLE --- */
         .section-header {
             display: flex; align-items: center; justify-content: space-between; 
-            margin-top: calc(var(--base-font-size) * 1.5); 
+            margin-top: calc(var(--block-spacing) * 1.2); 
             margin-bottom: calc(var(--base-font-size) * 0.8); 
             padding-bottom: 4px;
             border-bottom: 1px solid rgba(0,0,0,0.05); /* Linha sutil separadora */
@@ -187,7 +188,7 @@
         /* Blocos de Conteúdo */
         .experience-block { 
             position: relative; 
-            margin-bottom: 1.2rem; 
+            margin-bottom: var(--block-spacing); 
             padding-right: 25px; /* Espaço para botão de excluir bloco */
             border-left: 2px solid transparent;
             padding-left: 0;
@@ -211,7 +212,7 @@
 
         .education-item {
             display: flex; justify-content: space-between; align-items: flex-start;
-            margin-bottom: 0.8rem;
+            margin-bottom: calc(var(--block-spacing) * 0.7);
         }
 
         /* Foto */
@@ -308,7 +309,7 @@
 
         @media print {
             body { background: white; padding: 0; display: block; }
-            #control-dock, #ai-panel, #json-modal, #page-break-guide, .btn-add-item, .control-btn, .block-delete-btn, .inner-add-btn { display: none !important; }
+            #control-dock, #ai-panel, #json-modal, .page-break-line, .btn-add-item, .control-btn, .block-delete-btn, .inner-add-btn { display: none !important; }
             #resume-paper { box-shadow: none; margin: 0; width: 100%; height: auto; padding: var(--paper-padding-top) 15mm 15mm 15mm !important; }
             .editable { border: none !important; }
             .experience-block { border-left: none !important; padding-left: 0 !important; }
@@ -320,7 +321,7 @@
     <!-- PAPEL A4 DO CURRÍCULO -->
     <div id="resume-paper">
         <div id="watermark-layer"></div>
-        <div id="page-break-guide" title="O conteúdo abaixo desta linha pode ser cortado na impressão"></div>
+        <!-- Os guias de quebra de página serão injetados aqui dinamicamente -->
 
         <!-- Cabeçalho -->
         <header class="flex flex-col md:flex-row items-center gap-6 mb-6">
@@ -595,7 +596,7 @@
     <!-- DOCK DE CONTROLE -->
     <div id="control-dock">
         
-        <!-- Linha 1: Controles de Layout (Fonte, Margem, Espaçamento) -->
+        <!-- Linha 1: Controles de Layout (Fonte, Margem, Espaçamento) e NOVO CONTROLE DE MÚLTIPLAS PÁGINAS -->
         <div class="dock-row" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
             <div class="dock-group">
                 <span class="dock-label"><i class="fas fa-arrows-alt-v"></i> Topo</span>
@@ -609,6 +610,21 @@
                 <span class="dock-label"><i class="fas fa-align-justify"></i> Altura</span>
                 <input type="range" class="range-input" min="1.0" max="1.8" step="0.1" value="1.4" oninput="updateLayout('--line-height', this.value)" title="Espaçamento entre linhas">
             </div>
+            
+            <!-- NOVOS CONTROLES ADICIONADOS -->
+            <div class="dock-group">
+                <span class="dock-label" title="Ajustar o espaço entre os blocos ajuda a organizar a quebra de página"><i class="fas fa-th-large"></i> Blocos</span>
+                <input type="range" class="range-input" min="0.5" max="3.0" step="0.1" value="1.2" oninput="updateLayout('--block-spacing', this.value, 'rem')" title="Espaço entre seções (Ajuda na quebra de página)">
+            </div>
+            <div class="dock-group" style="background: #eef2ff; border-color: #c7d2fe;">
+                <span class="dock-label text-blue-700"><i class="fas fa-file-pdf"></i> Modo PDF</span>
+                <select id="pdf-mode" class="text-xs bg-transparent outline-none cursor-pointer font-bold text-blue-800" onchange="updateGuides()">
+                    <option value="single">Pág. Única (Auto)</option>
+                    <option value="multi">Múltiplas Págs A4</option>
+                </select>
+            </div>
+            <!-- FIM NOVOS CONTROLES -->
+
         </div>
 
         <!-- Linha 2: Cores Completas + Custom RGB -->
@@ -624,14 +640,14 @@
                             <input type="color" class="custom-color-input" title="Cor Destaque (Detalhes)" onchange="setCustomAccent(this.value)">
                         </div>
 
-                        <!-- CLÁSSICOS & NEUTROS (Novos) -->
+                        <!-- CLÁSSICOS & NEUTROS -->
                         <div class="color-group-label" style="color: #2d3436;">CLÁSSICO</div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #000000;" onclick="setTheme('#000000', '#000000')" title="Total Black"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #2d3436; --c-sec: #636e72;" onclick="setTheme('#2d3436', '#636e72')" title="Cinza Ardósia"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #4a4a4a; --c-sec: #9b9b9b;" onclick="setTheme('#4a4a4a', '#9b9b9b')" title="Cinza Médio"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #1c1c1c; --c-sec: #800020;" onclick="setTheme('#1c1c1c', '#800020')" title="Preto/Vinho"></div>
 
-                        <!-- BANCOS (Existentes) -->
+                        <!-- BANCOS -->
                         <div class="color-group-label" style="color: #EB0029;">BANCOS</div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #EB0029; --c-sec: #cccccc;" onclick="setTheme('#EB0029', '#2d2d2d')" title="Vermelho Santander"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #F39200; --c-sec: #005A9C;" onclick="setTheme('#005A9C', '#F39200')" title="Laranja Itaú"></div>
@@ -639,13 +655,13 @@
                         <div class="color-dot color-dot-dual" style="--c-prim: #6a1b9a; --c-sec: #8e24aa;" onclick="setTheme('#4a148c', '#ab47bc')" title="Nubank"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #003666; --c-sec: #f5f5f5;" onclick="setTheme('#003666', '#aab7b8')" title="Safra (Azul/Prata)"></div>
 
-                        <!-- CORPORATIVO (Expandido) -->
+                        <!-- CORPORATIVO -->
                         <div class="color-group-label" style="color: #0c2461;">CORPORATE</div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #0c2461; --c-sec: #4a69bd;" onclick="setTheme('#0c2461', '#4a69bd')" title="Marinho Profundo"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #192a56; --c-sec: #c23616;" onclick="setTheme('#192a56', '#c23616')" title="Harvard (Azul/Carmim)"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #2f3640; --c-sec: #0097e6;" onclick="setTheme('#2f3640', '#0097e6')" title="Grafite/Tech Blue"></div>
 
-                        <!-- INDÚSTRIA (Existentes + Novos) -->
+                        <!-- INDÚSTRIA -->
                         <div class="color-group-label" style="color: #004B8D;">INDÚSTRIA</div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #e67e22; --c-sec: #003366;" onclick="setTheme('#003366', '#e67e22')" title="Braskem"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #007680; --c-sec: #D99800;" onclick="setTheme('#007680', '#D99800')" title="Vale"></div>
@@ -654,7 +670,7 @@
                         <div class="color-dot color-dot-dual" style="--c-prim: #008542; --c-sec: #FFC72C;" onclick="setTheme('#008542', '#FFC72C')" title="Petrobras"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #594f4f; --c-sec: #f0a07c;" onclick="setTheme('#594f4f', '#f0a07c')" title="Cimento/Tijolo"></div>
 
-                        <!-- PRETO + ... (BÁSICO Expandido) -->
+                        <!-- CONTRASTE -->
                         <div class="color-group-label" style="color: #000000;">CONTRASTE</div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #2563eb;" onclick="setTheme('#000000', '#2563eb')" title="Preto com Azul"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #10b981;" onclick="setTheme('#000000', '#10b981')" title="Preto com Verde"></div>
@@ -663,14 +679,14 @@
                         <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #d63031;" onclick="setTheme('#000000', '#d63031')" title="Preto/Sangue"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #000000; --c-sec: #0984e3;" onclick="setTheme('#000000', '#0984e3')" title="Preto/Elétrico"></div>
 
-                        <!-- TENDÊNCIA (Novos) -->
+                        <!-- MODERNO -->
                         <div class="color-group-label" style="color: #6c5ce7;">MODERNO</div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #2d3436; --c-sec: #00b894;" onclick="setTheme('#2d3436', '#00b894')" title="Mint"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #2d3436; --c-sec: #fd79a8;" onclick="setTheme('#2d3436', '#fd79a8')" title="Rosa Pop"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #2d3436; --c-sec: #6c5ce7;" onclick="setTheme('#2d3436', '#6c5ce7')" title="Roxo Digital"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #2d3436; --c-sec: #e17055;" onclick="setTheme('#2d3436', '#e17055')" title="Terracota"></div>
 
-                        <!-- CINZA (Existentes + Novos) -->
+                        <!-- CINZA -->
                         <div class="color-group-label" style="color: #4b5563;">CINZA</div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #374151; --c-sec: #3b82f6;" onclick="setTheme('#374151', '#3b82f6')" title="Chumbo com Azul"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #374151; --c-sec: #10b981;" onclick="setTheme('#374151', '#10b981')" title="Chumbo com Verde"></div>
@@ -678,7 +694,7 @@
                         <div class="color-dot color-dot-dual" style="--c-prim: #576574; --c-sec: #8395a7;" onclick="setTheme('#576574', '#8395a7')" title="Monocromático Frio"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #353b48; --c-sec: #718093;" onclick="setTheme('#353b48', '#718093')" title="Nordic Gray"></div>
                         
-                        <!-- ROYAL (Existentes) -->
+                        <!-- ROYAL -->
                         <div class="color-group-label" style="color: #1e3a8a;">ROYAL</div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #1e3a8a; --c-sec: #93c5fd;" onclick="setTheme('#1e3a8a', '#60a5fa')" title="Royal Ton"></div>
                         <div class="color-dot color-dot-dual" style="--c-prim: #1e3a8a; --c-sec: #fbbf24;" onclick="setTheme('#1e3a8a', '#fbbf24')" title="Royal/Gold"></div>
@@ -711,7 +727,46 @@
         // --- FUNÇÕES DE LAYOUT ---
         function updateLayout(variable, value, unit='') {
             document.documentElement.style.setProperty(variable, value + unit);
+            // Atualiza os guias de quebra após um pequeno delay para a renderização aplicar
+            setTimeout(updateGuides, 50);
         }
+
+        // --- SISTEMA DINÂMICO DE GUIAS DE PÁGINA ---
+        function updateGuides() {
+            // Remove guias antigos
+            document.querySelectorAll('.page-break-line').forEach(el => el.remove());
+
+            const mode = document.getElementById('pdf-mode').value;
+            if (mode === 'single') return; // Se for página única, não exibe as linhas
+
+            const paper = document.getElementById('resume-paper');
+            const paperHeightPx = paper.getBoundingClientRect().height;
+            const paperWidthPx = paper.getBoundingClientRect().width;
+            
+            // Calcula a altura exata de uma folha A4 em pixels com base na largura renderizada
+            const a4HeightPx = (paperWidthPx / 210) * 297;
+
+            let currentY = a4HeightPx;
+            let pageNum = 1;
+            
+            // Desenha as linhas a cada altura de A4 até o fim do papel
+            while (currentY < paperHeightPx - 10) {
+                const guide = document.createElement('div');
+                guide.className = 'page-break-line';
+                guide.style.top = currentY + 'px';
+                guide.setAttribute('data-content', `FIM DA PÁGINA ${pageNum}`);
+                paper.appendChild(guide);
+                currentY += a4HeightPx;
+                pageNum++;
+            }
+        }
+
+        // Observa mudanças no tamanho do currículo (edições de texto) para redesenhar as linhas
+        let resizeTimer;
+        const resizeObserver = new ResizeObserver(() => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(updateGuides, 100);
+        });
 
         // --- FUNÇÕES DE COR ---
         function setTheme(primary, accent) {
@@ -844,13 +899,11 @@
                 ageElement.textContent = `${age} Anos`;
             }
             
-            // Só executa se o container estiver vazio (o que não deve acontecer mais com o HTML estático, mas serve de fallback)
-            if(document.getElementById('editable-experience').children.length === 0) {
-               // Fallback: não faz nada pois o HTML já vem preenchido
-            }
-            
             setupAutoSave();
             setupFileListeners(); // Inicializa listeners de arquivo PDF/TXT
+            
+            // Iniciar observador de tamanho para as guias de quebra
+            resizeObserver.observe(document.getElementById('resume-paper'));
         });
 
         // --- AUTO-SAVE ---
@@ -858,7 +911,7 @@
             // Monitorar mudanças em qualquer editável
             document.body.addEventListener('input', function(e) {
                 if(e.target.classList.contains('editable')) {
-                    // Lógica de salvamento granular poderia ser aqui, mas vamos focar no backup JSON manual para estrutura complexa
+                    // Lógica de salvamento granular poderia ser aqui
                 }
             });
         }
@@ -933,7 +986,11 @@
                     accent: style.getPropertyValue('--accent-color').trim(),
                     fontSize: style.getPropertyValue('--base-font-size').trim(),
                     paddingTop: style.getPropertyValue('--paper-padding-top').trim(),
-                    lineHeight: style.getPropertyValue('--line-height').trim()
+                    lineHeight: style.getPropertyValue('--line-height').trim(),
+                    blockSpacing: style.getPropertyValue('--block-spacing').trim()
+                },
+                settings: {
+                    pdfMode: document.getElementById('pdf-mode').value
                 }
             };
         }
@@ -1036,6 +1093,11 @@
                 if(data.theme.fontSize) updateLayout('--base-font-size', parseFloat(data.theme.fontSize), 'px');
                 if(data.theme.paddingTop) updateLayout('--paper-padding-top', parseFloat(data.theme.paddingTop), 'mm');
                 if(data.theme.lineHeight) updateLayout('--line-height', data.theme.lineHeight);
+                if(data.theme.blockSpacing) updateLayout('--block-spacing', parseFloat(data.theme.blockSpacing), 'rem');
+            }
+            if(data.settings && data.settings.pdfMode) {
+                document.getElementById('pdf-mode').value = data.settings.pdfMode;
+                updateGuides();
             }
             alert('Curriculo Pro restaurado com sucesso!');
         }
@@ -1262,8 +1324,8 @@
             
             // Elementos para ocultar durante o PDF
             const elementsToHide = [
-                document.getElementById('page-break-guide'),
-                ...document.querySelectorAll('.control-btn'), // Botões de adicionar/remover
+                ...document.querySelectorAll('.page-break-line'),
+                ...document.querySelectorAll('.control-btn'), 
                 ...document.querySelectorAll('.block-delete-btn'),
                 ...document.querySelectorAll('.inner-add-btn')
             ];
@@ -1275,7 +1337,7 @@
 
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
             
-            // Oculta UI de controle
+            // Oculta UI de controle e Guias de corte
             elementsToHide.forEach(el => el.style.display = 'none');
 
             // Configuração ATS (remove imagens)
@@ -1290,11 +1352,36 @@
 
                 const imgData = canvas.toDataURL('image/jpeg', 0.95);
                 const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                
                 const pdfWidth = pdf.internal.pageSize.getWidth(); 
+                const pageHeight = pdf.internal.pageSize.getHeight(); // 297mm fixo do A4
+                
                 const imgProps = pdf.getImageProperties(imgData);
-                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                const totalPdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                const pdfMode = document.getElementById('pdf-mode').value;
+
+                if (pdfMode === 'multi') {
+                    // MODO MÚLTIPLAS PÁGINAS (Fatiamento)
+                    let heightLeft = totalPdfHeight;
+                    let position = 0;
+
+                    // Adiciona a primeira página
+                    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, totalPdfHeight);
+                    heightLeft -= pageHeight;
+
+                    // Loop para adicionar páginas extras se houver mais conteúdo
+                    while (heightLeft > 0) {
+                        position = position - pageHeight;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, totalPdfHeight);
+                        heightLeft -= pageHeight;
+                    }
+                } else {
+                    // MODO PÁGINA ÚNICA (Comportamento Original)
+                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, totalPdfHeight);
+                }
+
                 const fileName = isComplete ? 'Curriculo_Wellington_Completo.pdf' : 'Curriculo_Wellington_ATS.pdf';
                 pdf.save(fileName);
 
