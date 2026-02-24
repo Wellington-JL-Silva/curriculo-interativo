@@ -29,6 +29,7 @@
             /* Cores Iniciais */
             --primary-color: #0f172a; 
             --accent-color: #2563eb;
+            --tertiary-color: #0f172a; /* Cor exclusiva do nome e foto */
             --text-color: #333333;
             --ai-color: #8b5cf6;
 
@@ -218,7 +219,7 @@
         /* Foto */
         .photo-container {
             width: 110px; height: 110px; border-radius: 50%;
-            border: 3px solid var(--primary-color); overflow: hidden;
+            border: 3px solid var(--tertiary-color); overflow: hidden;
             position: relative; cursor: pointer; background-color: #f1f5f9;
         }
         .photo-container img { width: 100%; height: 100%; object-fit: cover; }
@@ -337,7 +338,7 @@
 
             <!-- Dados Pessoais -->
             <div class="flex-grow text-center md:text-left w-full">
-                <div id="editable-name" class="editable font-black text-[var(--primary-color)] uppercase tracking-tight mb-2" contenteditable="true">[SEU NOME COMPLETO]</div>
+                <div id="editable-name" class="editable font-black text-[var(--tertiary-color)] uppercase tracking-tight mb-2" contenteditable="true">[SEU NOME COMPLETO]</div>
                 <div id="editable-role" class="editable font-semibold text-[var(--accent-color)] mb-3" contenteditable="true">[SEU CARGO OU OBJETIVO]</div>
                 
                 <div id="editable-contact" class="flex flex-wrap justify-center md:justify-start gap-4 text-[var(--text-color)] opacity-90 mt-1" style="font-size: 0.9em;">
@@ -645,6 +646,8 @@
                             <span style="font-size: 0.6rem; color: #64748b;">PERSONALIZAR:</span>
                             <input type="color" class="custom-color-input" title="Cor Primária (Textos Escuros)" onchange="setCustomPrimary(this.value)">
                             <input type="color" class="custom-color-input" title="Cor Destaque (Detalhes)" onchange="setCustomAccent(this.value)">
+                            <!-- Novo seletor Terciário (Nome e Foto) -->
+                            <input type="color" class="custom-color-input" title="Cor do Nome e Foto" onchange="setCustomTertiary(this.value)">
                         </div>
 
                         <!-- CLÁSSICOS & NEUTROS -->
@@ -796,12 +799,16 @@
         function setTheme(primary, accent) {
             document.documentElement.style.setProperty('--primary-color', primary);
             document.documentElement.style.setProperty('--accent-color', accent);
+            document.documentElement.style.setProperty('--tertiary-color', primary); // Garante que temas prontos pintem o nome
         }
         function setCustomPrimary(color) {
             document.documentElement.style.setProperty('--primary-color', color);
         }
         function setCustomAccent(color) {
             document.documentElement.style.setProperty('--accent-color', color);
+        }
+        function setCustomTertiary(color) {
+            document.documentElement.style.setProperty('--tertiary-color', color);
         }
 
         // --- FUNÇÕES DE ADICIONAR/REMOVER ITENS ---
@@ -1008,6 +1015,7 @@
                 theme: {
                     primary: style.getPropertyValue('--primary-color').trim(),
                     accent: style.getPropertyValue('--accent-color').trim(),
+                    tertiary: style.getPropertyValue('--tertiary-color').trim(),
                     fontSize: style.getPropertyValue('--base-font-size').trim(),
                     paddingTop: style.getPropertyValue('--paper-padding-top').trim(),
                     lineHeight: style.getPropertyValue('--line-height').trim(),
@@ -1114,6 +1122,7 @@
             // Restaurar Tema e Layout
             if(data.theme) {
                 setTheme(data.theme.primary, data.theme.accent);
+                if(data.theme.tertiary) document.documentElement.style.setProperty('--tertiary-color', data.theme.tertiary);
                 if(data.theme.fontSize) updateLayout('--base-font-size', parseFloat(data.theme.fontSize), 'px');
                 if(data.theme.paddingTop) updateLayout('--paper-padding-top', parseFloat(data.theme.paddingTop), 'mm');
                 if(data.theme.lineHeight) updateLayout('--line-height', data.theme.lineHeight);
