@@ -622,6 +622,13 @@
                     <option value="single">Pág. Única (Auto)</option>
                     <option value="multi">Múltiplas Págs A4</option>
                 </select>
+                <select id="pdf-pages" class="text-xs bg-transparent outline-none cursor-pointer font-bold text-blue-800 ml-1 border-l border-blue-200 pl-1" onchange="updateGuides()" style="display: none;" title="Forçar limite de páginas">
+                    <option value="auto">Auto</option>
+                    <option value="1">1 Pág</option>
+                    <option value="2">2 Págs</option>
+                    <option value="3">3 Págs</option>
+                    <option value="4">4 Págs</option>
+                </select>
             </div>
             <!-- FIM NOVOS CONTROLES -->
 
@@ -737,14 +744,31 @@
             document.querySelectorAll('.page-break-line').forEach(el => el.remove());
 
             const mode = document.getElementById('pdf-mode').value;
-            if (mode === 'single') return; // Se for página única, não exibe as linhas
+            const pagesSelect = document.getElementById('pdf-pages');
+
+            if (mode === 'single') {
+                if (pagesSelect) pagesSelect.style.display = 'none';
+                return; // Se for página única, não exibe as linhas
+            }
+            if (pagesSelect) pagesSelect.style.display = 'inline-block';
 
             const paper = document.getElementById('resume-paper');
             const paperHeightPx = paper.getBoundingClientRect().height;
             const paperWidthPx = paper.getBoundingClientRect().width;
             
             // Calcula a altura exata de uma folha A4 em pixels com base na largura renderizada
-            const a4HeightPx = (paperWidthPx / 210) * 297;
+            let a4HeightPx = (paperWidthPx / 210) * 297;
+
+            // Ajuste de escala se houver limite de páginas fixado
+            const pageLimit = pagesSelect ? pagesSelect.value : 'auto';
+            if (pageLimit !== 'auto') {
+                const maxPages = parseInt(pageLimit);
+                const maxAllowedHeightPx = maxPages * a4HeightPx;
+                if (paperHeightPx > maxAllowedHeightPx) {
+                    const scaleFactor = maxAllowedHeightPx / paperHeightPx;
+                    a4HeightPx = a4HeightPx / scaleFactor; // Ajusta a distância visual da linha de corte
+                }
+            }
 
             let currentY = a4HeightPx;
             let pageNum = 1;
@@ -1360,21 +1384,37 @@
                 const totalPdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
                 const pdfMode = document.getElementById('pdf-mode').value;
+                const pageLimit = document.getElementById('pdf-pages') ? document.getElementById('pdf-pages').value : 'auto';
+
+                let renderWidth = pdfWidth;
+                let renderHeight = totalPdfHeight;
+                let xOffset = 0;
 
                 if (pdfMode === 'multi') {
-                    // MODO MÚLTIPLAS PÁGINAS (Fatiamento)
-                    let heightLeft = totalPdfHeight;
+                    // MODO MÚLTIPLAS PÁGINAS (Fatiamento e Escala)
+                    if (pageLimit !== 'auto') {
+                        const maxPages = parseInt(pageLimit);
+                        const maxAllowedHeight = maxPages * pageHeight;
+                        if (totalPdfHeight > maxAllowedHeight) {
+                            const scaleFactor = maxAllowedHeight / totalPdfHeight;
+                            renderWidth = pdfWidth * scaleFactor;
+                            renderHeight = totalPdfHeight * scaleFactor;
+                            xOffset = (pdfWidth - renderWidth) / 2; // Centraliza a imagem menor no A4
+                        }
+                    }
+
+                    let heightLeft = renderHeight;
                     let position = 0;
 
                     // Adiciona a primeira página
-                    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, totalPdfHeight);
+                    pdf.addImage(imgData, 'JPEG', xOffset, position, renderWidth, renderHeight);
                     heightLeft -= pageHeight;
 
                     // Loop para adicionar páginas extras se houver mais conteúdo
                     while (heightLeft > 0) {
                         position = position - pageHeight;
                         pdf.addPage();
-                        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, totalPdfHeight);
+                        pdf.addImage(imgData, 'JPEG', xOffset, position, renderWidth, renderHeight);
                         heightLeft -= pageHeight;
                     }
                 } else {
